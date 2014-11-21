@@ -16,55 +16,38 @@ Lesser General Public License for more details.
 Initialisation
 --]]--
 
-local Boat = Class
+local Explosion = Class
 {
-  type = GameObject.newType("Boat"),
+  type = GameObject.newType("Explosion"),
 
   init = function(self, x, y)
-    GameObject.init(self, x, y, 32, 16)
+    GameObject.init(self, x, y, 0, 0)
+    self.t = 0
   end,
 }
-Boat:include(GameObject)
-
-
-
---[[------------------------------------------------------------
-Destruction
---]]--
-
-function Boat:onPurge()
-end
+Explosion:include(GameObject)
 
 --[[------------------------------------------------------------
 Game loop
 --]]--
 
-function Boat:update(dt)
-
-	GameObject.update(self, dt)
-
-	self.dx = useful.lerp(self.dx, -32, dt)
-	self.dy = self.dy + math.random()*dt
+function Explosion:update(dt)
+	self.t = self.t + dt
+	local size = math.sin(self.t*math.pi*2) * 32
+	self.w, self.h = size, size
+	if self.t > 0.5 then
+		self.purge = true
+	end
 end
 
-function Boat:draw(x, y)
-	--fudge.current:addb("boat", self.x, self.y)
+function Explosion:draw(x, y)
 	self.DEBUG_VIEW:draw(self)
 	--GameObject.draw(self)
 end
 
---[[------------------------------------------------------------
-Collisions
---]]--
-
-function Boat:eventCollision(other)
-	if other:isType("Explosion") then
-		self.purge = true
-	end
-end
 
 --[[------------------------------------------------------------
 Export
 --]]--
 
-return Boat
+return Explosion

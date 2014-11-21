@@ -22,6 +22,12 @@ local LAND_W = WORLD_W*0.2
 
 local t = 0
 
+local spawn_positions = useful.deck()
+for i = 1, 9 do
+	spawn_positions.stack(i*0.1*WORLD_H)
+end
+
+local base_grid = nil
 
 --[[------------------------------------------------------------
 Gamestate navigation
@@ -33,6 +39,7 @@ end
 
 function state:enter()
 	t = 0
+	base_grid = CollisionGrid(BaseSlot, LAND_W/4, WORLD_H/10, 4, 10)
 end
 
 
@@ -50,13 +57,20 @@ function state:keypressed(key, uni)
   end
 end
 
+function state:mousepressed(x, y)
+	local t = base_grid:pixelToTile(x, y)
+	if t then
+	else
+		Explosion(x, y)
+	end
+end
 
 function state:update(dt)
 	GameObject.updateAll(dt, self.view)
 
 	t = t + dt
 	if t > 3 then
-		Boat(WORLD_W + 128, WORLD_H*math.random())
+		Boat(WORLD_W + 128, spawn_positions.draw())
 		t = 0
 	end
 end
@@ -64,6 +78,7 @@ end
 function state:draw()
 	-- background
 	love.graphics.rectangle("fill", 0, 0, LAND_W, WORLD_H)
+	base_grid:draw()
 
 	-- objects
 	fudge.set( { current = foregroundb } )
@@ -72,7 +87,7 @@ function state:draw()
 	foregroundb.batch:clear()
 
 	-- interface
-	love.graphics.print("GAME", 32, 32)
+
 end
 
 

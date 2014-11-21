@@ -30,8 +30,12 @@ Animation = require("unrequited/Animation")
 AnimationView = require("unrequited/AnimationView")
 Controller = require("unrequited/Controller")
 RadialMenu = require("unrequited/RadialMenu")
+CollisionGrid = require("unrequited/CollisionGrid")
+
+BaseSlot = require("BaseSlot")
 
 Boat = require("gameobjects/Boat")
+Explosion = require("gameobjects/Explosion")
 
 -------------------------------------------------------------------------------
 -- DEFINES
@@ -76,8 +80,7 @@ love.load = function()
   fudge.set({ monkey = true })
   foregroundb = fudge.new("assets/foreground", { npot = false })
 
-	gamestate.registerEvents{ 'update', 'quit', 'keypressed', 
-		'keyreleased', 'mousepressed', 'mousereleased' }
+	gamestate.registerEvents{ 'update', 'quit', 'keypressed', 'keyreleased' }
 	gamestate.switch(title)
 end
 
@@ -94,6 +97,14 @@ love.draw = function()
 	if DEBUG then
 		log:draw(32, 32)
 	end
+end
+
+love.mousepressed = function(x, y, button)
+	gamestate.mousepressed(x/VIEW_SCALE, y/VIEW_SCALE, button)
+end
+
+love.mousereleased = function(x, y, button)
+	gamestate.mousereleased(x/VIEW_SCALE, y/VIEW_SCALE, button)
 end
 
 love.keypressed = function(key)
