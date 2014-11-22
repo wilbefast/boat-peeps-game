@@ -166,7 +166,7 @@ local TrailFire = Class
 {
   type = Particle.type,
 
-  FRICTION = 6,
+  FRICTION = 18,
 
   init = function(self, x, y, dx, dy, dz)
     GameObject.init(self, x, y, 0)
@@ -176,7 +176,8 @@ local TrailFire = Class
     self.red = 200 + math.random()*55
     self.green = 200 + math.random()*25
     self.blue = 10 + math.random()*5
-    self.dieSpeed = 1 + math.random()
+    self.dieSpeed = 4 + 2*math.random()
+    self.size = 3 + 2*math.random()
   end,
 }
 TrailFire:include(GameObject)

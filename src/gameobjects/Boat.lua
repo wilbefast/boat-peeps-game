@@ -23,8 +23,12 @@ local Boat = Class
 
   type = GameObject.newType("Boat"),
 
-  init = function(self, x, y)
-    GameObject.init(self, x, y, 32, 16)
+  init = function(self, x, y, size)
+
+    GameObject.init(self, x, y, 32*size, 16)
+    self.size = size
+    self.hits = size
+    self.MAX_DX = self.MAX_DX/size
   end,
 }
 Boat:include(GameObject)
@@ -53,18 +57,27 @@ function Boat:update(dt)
 		self.dy = -self.dy
 	end
 
-	if self.x < LAND_W + 16 then
+	if self.x < LAND_W + 16*self.size then
 		self.purge = true
-		for i = 1, 3 do
+		for i = 1, self.size do
 			Peep(self.x + useful.signedRand(4), self.y + useful.signedRand(4), Peep.Beggar)
 		end
 	end
+
+	local life = (self.size - self.hits)/self.size
+	if math.random() < life then
+		local angle = math.random()*math.pi*2
+		local speed = 12 + math.random()*8
+		Particle.TrailSmoke(self.x + useful.signedRand(self.w*0.5), self.y, 
+			math.cos(angle)*speed, 
+			math.sin(angle)*speed, 
+			math.random()*speed)
+	end
+
 end
 
 function Boat:draw(x, y)
-	--fudge.current:addb("boat", self.x, self.y)
 	self.DEBUG_VIEW:draw(self)
-	--GameObject.draw(self)
 end
 
 --[[------------------------------------------------------------
@@ -72,10 +85,19 @@ Collisions
 --]]--
 
 function Boat:eventCollision(other, dt)
-	if other:isType("Explosion") then
-		self.purge = true
+	if other:isType("Explosion") and (not other.alreadyHit[self]) then
+		other.alreadyHit[self] = true
+		self.hits = self.hits - 1
+		if self.hits <= 0 then
+			self.purge = true
+			Explosion(self.x, self.y)
+		else
+			self:shoveAwayFrom(other, 700/self.size*dt)
+		end
 	elseif other:isType("Boat") then
-		other:shoveAwayFrom(self, 10*dt)
+		if self.size >= other.size then
+			other:shoveAwayFrom(self, 100*(1 + self.size - other.size)*dt)
+		end
 	end
 end
 

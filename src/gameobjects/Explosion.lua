@@ -23,6 +23,7 @@ local Explosion = Class
   init = function(self, x, y)
     GameObject.init(self, x, y, 0, 0)
     self.t = 0
+    self.alreadyHit = {}
     shake = shake + 10
 
     for i = 1, 10 do

@@ -74,6 +74,15 @@ function Missile:update(dt)
 		s.z = self.z
 	end
 
+	-- and fire!
+  if math.random() > 0.1 then
+		local f = Particle.TrailFire(self.x, self.y, 
+			-32*self.dx + useful.signedRand(8), 
+			-32*self.dy + useful.signedRand(8),
+			-4*(life-10 - 2) + useful.signedRand(10))
+		f.z = self.z
+	end
+
 	if self.t > 1 then
 		self.purge = true
 	end
@@ -82,6 +91,7 @@ end
 function Missile:draw(x, y)
 
 	local dx, dy = 8*self.dx, 8*self.dy
+
 	local tx, ty = x, y - self.z
 	useful.bindBlack()
 	love.graphics.polygon("fill", 

@@ -34,19 +34,19 @@ Callbacks
 
 function state:keypressed(key, uni)
   if key=="escape" then
-    love.event.push("quit")
+    gamestate.switch(title)
   end
 end
 
 function state:mousepressed(x, y, button)
-  gamestate.switch(game)
+  gamestate.switch(title)
 end
 
 function state:update(dt)
 end
 
 function state:draw()
-	love.graphics.print("TITLE", 32, 32)
+	love.graphics.print("GAMEOVER", 32, 32)
 end
 
 

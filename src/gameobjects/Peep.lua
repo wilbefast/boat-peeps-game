@@ -27,6 +27,7 @@ local Peep = Class
     self.peepType = peepType
     self.state = { update = function(dt) self:setState(self.stateWander) end}
     self.ammo = 0
+    self.hunger = math.random()*0.2
   end,
 }
 Peep:include(GameObject)
@@ -39,8 +40,14 @@ Peep.types = {
   Beggar = {
   },
   Citizen = {
+    onBecome = function(peep)
+      peep:setState(Peep.stateIdle)
+    end
   },
   Farmer = {
+    onBecome = function(peep, farm)
+      peep:setState(Peep.stateFarm, farm)
+    end
   },
   Soldier = {
     onBecome = function(peep)
@@ -93,16 +100,60 @@ function Peep:setState(newState, ...)
   self.state = newState
 end
 
-Peep.stateGetAmmo = function(peep) 
-  local armoury = GameObject.getNearestOfType("Building", peep.x, peep.y,
-    function(building) return building:isBuildingType("Base") end)
+Peep.stateFarm = function(peep, farm) 
+  local t = 0
+  return {
 
+    name = "farm",
+
+    update = function(dt)
+      if (not farm) or (farm.purge) then
+        peep:setState(Peep.stateIdle)
+        return
+      end
+      if peep:isNear(farm) then
+        t = t + dt*0.1
+        if t > 1 then
+          t = 0
+          Food(farm.x + useful.signedRand(4), farm.y + useful.signedRand(4))
+        end
+      else
+        peep:accelerateTowardsObject(farm, 128*dt)
+      end
+    end
+  }
+end
+
+Peep.stateGetFood = function(peep) 
+  local food = GameObject.getNearestOfType("Food", peep.x, peep.y)
+
+  return {
+
+    name = "food",
+
+    update = function(dt)
+      if (not food) or (food.purge) then
+        peep:setState(Peep.stateIdle)
+        return
+      end
+      if peep:isNear(food) then
+        food.purge = true
+        peep.hunger = math.max(0, peep.hunger - 1)
+        return
+      else
+        peep:accelerateTowardsObject(food, 128*dt)
+      end
+    end
+  }
+end
+
+Peep.stateGetAmmo = function(peep, armoury) 
   return {
 
     name = "getAmmo",
 
     update = function(dt)
-      if not armoury then
+      if (not armoury) or (armoury.purge) then
         peep:setState(Peep.stateIdle)
         return
       end
@@ -139,6 +190,10 @@ Peep.stateBuild = function(peep, building)
     name = "build",
 
     update = function(dt)
+      if (not building) or (building.purge) then
+        peep:setState(Peep.stateIdle)
+        return
+      end
       if peep:isNear(building) then
         building:build(dt*0.2)
       else
@@ -197,15 +252,26 @@ Game loop
 function Peep:update(dt)
 
   if self.x > LAND_W then
-    self.dx = self.dx - 32*dt
+    self.dx = self.dx - 128*dt
+  elseif self.x < 0 then
+    self.dx = self.dx + 128*dt
   end
 
   GameObject.update(self, dt)
 
   self.state.update(dt)
 
+  self.hunger = self.hunger + dt/30
+  if self.hunger > 1 then
+    if self.hunger < 2 then
+      self:setState(Peep.stateGetFood)
+    else
+      self.purge = true
+    end
+  end
+
   if self.job and self.job.buildingType.updatePeep then
-    self.job.buildingType.updatePeep(self, dt)
+    self.job.buildingType.updatePeep(self, self.job, dt)
   end
 end
 
@@ -222,7 +288,7 @@ Combat
 --]]--
 
 function Peep:canFireAt(x, y)
-  return (self:isPeepType("Soldier") and self.ammo > 0)
+  return (self:isPeepType("Soldier") and self.ammo > 0 and self.hunger < 1)
 end
 
 function Peep:fireAt(x, y)

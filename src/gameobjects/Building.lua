@@ -40,16 +40,21 @@ Building.types = {
     jobType = "Engineer"
   },
   Farm = {
-    jobType = "Farmer"
+    jobType = "Farmer",
+    updatePeep = function(peep, farm, dt)
+      if (peep.hunger < 1) and (peep.state.name ~= "farm") then
+        peep:setState(Peep.stateFarm, farm)
+      end
+    end
   },
   University = {
     jobType = "Professor"
   },
   Base = {
     jobType = "Soldier",
-    updatePeep = function(peep, dt)
-      if (peep.ammo < 1) and (peep.state.name ~= "reloading") then
-        peep:setState(Peep.stateGetAmmo)
+    updatePeep = function(peep, base, dt)
+      if (peep.ammo < 1) and (peep.hunger < 1) and (peep.state.name ~= "reloading") then
+        peep:setState(Peep.stateGetAmmo, base)
       end
     end
   },

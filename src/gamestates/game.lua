@@ -18,7 +18,7 @@ local state = gamestate.new()
 Defines
 --]]--
 
-local t = 0
+local spawn_t = 0
 
 local spawn_positions = useful.deck()
 for i = 1, 9 do
@@ -28,6 +28,8 @@ end
 local active_soldier = nil
 
 base_grid = nil
+
+local gameover_t = 0
 
 local selected_tile = nil
 
@@ -53,7 +55,9 @@ end
 
 
 function state:enter()
-	t = 0
+	spawn_t = 0
+	gameover_t = 0
+
 	base_grid = CollisionGrid(BaseSlot, TILE_W, TILE_H, N_TILES_ACROSS, N_TILES_DOWN, GRID_X, GRID_Y)
 	base_grid:map(function(t)
 		local m = RadialMenu(32, t.x + t.w*0.5, t.y + t.w*0.5)
@@ -66,9 +70,12 @@ function state:enter()
 	selected_tile = nil
 	active_soldier = nil
 
+	-- spawn initial units
 	for i = 1, 3 do 
-		Peep(GRID_X + math.random(N_TILES_ACROSS)*TILE_W, 
-				GRID_Y + math.random(N_TILES_DOWN)*TILE_H, Peep.Soldier).ammo = 200
+		Peep(LAND_W + useful.signedRand(4), WORLD_H*0.5 + useful.signedRand(4), Peep.Citizen)
+	end
+	for i = 1, 9 do
+		Food(LAND_W + useful.signedRand(4), WORLD_H*0.5 + useful.signedRand(4))
 	end
 
 end
@@ -76,7 +83,7 @@ end
 
 function state:leave()
 	GameObject.purgeAll()
-	WORLD_CANVAS:clear()
+	--WORLD_CANVAS:clear()
 end
 
 --[[------------------------------------------------------------
@@ -120,10 +127,12 @@ function state:update(dt)
 	active_soldier = GameObject.getNearestOfType("Peep", mx, my, function(peep)
 		return peep:canFireAt(mx, my) end)
 
-	t = t + dt
-	if t > 3 then
-		Boat(WORLD_W + 128, spawn_positions.draw())
-		t = 0
+	if gameover_t <= 0 then
+		spawn_t = spawn_t + dt
+		if spawn_t > 3 then
+			Boat(WORLD_W + 128, spawn_positions.draw(), math.random(3))
+			spawn_t = 0
+		end
 	end
 
 	base_grid:map(function(t)
@@ -133,6 +142,24 @@ function state:update(dt)
 			t.menu:close(3*dt)
 		end
 	end)
+
+	if gameover_t > 0 then
+		gameover_t = gameover_t + dt
+		if gameover_t > 3 then
+			gamestate.switch(gameover)
+		end
+	else
+		local citizens = GameObject.countOfTypeSuchThat("Peep", function(peep)
+				return (not peep:isPeepType("Beggar") and (peep.hunger < 1))
+			end)
+		log:write(citizens)
+		if citizens <= 0 then
+			-- fail!
+			if not GameObject.getObjectOfType("Food") then
+				gameover_t = gameover_t + dt
+			end
+		end
+	end
 
 end
 

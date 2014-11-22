@@ -62,6 +62,7 @@ end
 
 BaseSlot = require("BaseSlot")
 
+Food = require("gameobjects/Food")
 Missile = require("gameobjects/Missile")
 Peep = require("gameobjects/Peep")
 Building = require("gameobjects/Building")
@@ -110,6 +111,7 @@ shake = 0
 
 game = require("gamestates/game")
 title = require("gamestates/title")
+gameover = require("gamestates/gameover")
 
 -------------------------------------------------------------------------------
 -- LOVE CALLBACKS
