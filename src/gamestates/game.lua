@@ -29,6 +29,42 @@ end
 
 local base_grid = nil
 
+local selected_slot = nil
+
+local base_menu = nil
+local menu_farm = {
+	draw = function(self, x, y)
+		love.graphics.setColor(0, 0, 255)
+			love.graphics.printf("Farm", x, y, 0, "center")
+			love.graphics.circle("line", x, y, 24)
+		useful.bindWhite()
+	end
+}
+local menu_factory = {
+	draw = function(self, x, y)
+		love.graphics.setColor(0, 0, 255)
+			love.graphics.printf("Factory", x, y, 0, "center")
+			love.graphics.circle("line", x, y, 24)
+		useful.bindWhite()
+	end
+}
+local menu_turret = {
+	draw = function(self, x, y)
+		love.graphics.setColor(0, 0, 255)
+			love.graphics.printf("Turret", x, y, 0, "center")
+			love.graphics.circle("line", x, y, 24)
+		useful.bindWhite()
+	end
+}
+local menu_university = {
+	draw = function(self, x, y)
+		love.graphics.setColor(0, 0, 255)
+			love.graphics.printf("University", x, y, 0, "center")
+			love.graphics.circle("line", x, y, 24)
+		useful.bindWhite()
+	end
+}
+
 --[[------------------------------------------------------------
 Gamestate navigation
 --]]--
@@ -40,6 +76,17 @@ end
 function state:enter()
 	t = 0
 	base_grid = CollisionGrid(BaseSlot, LAND_W/4, WORLD_H/10, 4, 10)
+
+	selected_slot = nil
+
+	base_menu = RadialMenu(32)
+
+
+	
+	base_menu:addOption(menu_farm, 0)
+	base_menu:addOption(menu_factory, math.pi*0.5)
+	base_menu:addOption(menu_turret, math.pi)
+	base_menu:addOption(menu_university, math.pi*1.5)
 end
 
 
@@ -60,7 +107,14 @@ end
 function state:mousepressed(x, y)
 	local t = base_grid:pixelToTile(x, y)
 	if t then
+		if selected_slot then
+			selected_slot = nil
+		else
+			selected_slot = t
+			base_menu.dx, base_menu.dy = t.x + t.w*0.5, t.y + t.h*0.5
+		end
 	else
+		selected_slot = nil
 		Explosion(x, y)
 	end
 end
@@ -72,6 +126,12 @@ function state:update(dt)
 	if t > 3 then
 		Boat(WORLD_W + 128, spawn_positions.draw())
 		t = 0
+	end
+
+	if selected_slot then
+		base_menu:open(3*dt)
+	else
+		base_menu:close(3*dt)
 	end
 end
 
@@ -87,7 +147,9 @@ function state:draw()
 	foregroundb.batch:clear()
 
 	-- interface
-
+	if base_menu.dx then
+		base_menu:draw(base_menu.dx, base_menu.dy)
+	end
 end
 
 
