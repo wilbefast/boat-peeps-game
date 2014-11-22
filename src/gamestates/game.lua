@@ -62,9 +62,9 @@ function state:enter()
 	base_grid:map(function(t)
 		local m = RadialMenu(32, t.x + t.w*0.5, t.y + t.w*0.5)
 		m:addOption(Building.Farm.menuOption, 0)
-		m:addOption(Building.Factory.menuOption, math.pi*0.5)
+		--m:addOption(Building.Factory.menuOption, math.pi*0.5)
 		m:addOption(Building.Base.menuOption, math.pi)
-		m:addOption(Building.University.menuOption, math.pi*1.5)
+		--m:addOption(Building.University.menuOption, math.pi*1.5)
 		t.menu = m
 	end)
 	selected_tile = nil

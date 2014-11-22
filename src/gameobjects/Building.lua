@@ -37,7 +37,12 @@ Sub-types
 
 Building.types = {
   ConstructionSite = {
-    jobType = "Engineer"
+    jobType = "Engineer",
+    updatePeep = function(peep, building, dt)
+      if (peep.hunger < 1) then
+        peep:setState(Peep.stateBuild, building)
+      end
+    end
   },
   Farm = {
     jobType = "Farmer",
@@ -47,9 +52,6 @@ Building.types = {
       end
     end
   },
-  University = {
-    jobType = "Professor"
-  },
   Base = {
     jobType = "Soldier",
     updatePeep = function(peep, base, dt)
@@ -57,9 +59,6 @@ Building.types = {
         peep:setState(Peep.stateGetAmmo, base)
       end
     end
-  },
-  Factory = {
-    jobType = "Engineer"
   }
 }
 for name, type in pairs(Building.types) do

@@ -89,6 +89,9 @@ States
 --]]--
 
 function Peep:setState(newState, ...)
+  if self.state.name == newState then
+    return
+  end
   newState = newState(self, ...)
   local oldState = self.state
   if oldState.exitTo then
@@ -185,6 +188,7 @@ Peep.stateReloading = function(peep)
 end
 
 Peep.stateBuild = function(peep, building) 
+  log:write("BUILDING")
   return {
 
     name = "build",
@@ -272,12 +276,17 @@ function Peep:update(dt)
 
   if self.job and self.job.buildingType.updatePeep then
     self.job.buildingType.updatePeep(self, self.job, dt)
+  elseif self.job then
+    log:write("no updatePeep method for", self.job.buildingType.name)
   end
 end
 
 function Peep:draw(x, y)
 	love.graphics.setColor(0, 0, 0)
 		self.DEBUG_VIEW:draw(self)
+    if self.job then
+      love.graphics.line(self.x, self.y, self.job.x, self.job.y)
+    end
 		love.graphics.printf(self.peepType.name, x, y + 4, 0, "center")
     love.graphics.printf(self.state.name, x, y - 16, 0, "center")
 	useful.bindWhite()
