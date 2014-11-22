@@ -89,9 +89,9 @@ function state:mousepressed(x, y)
 
 	if x > LAND_W + 32 then
 		local soldier = GameObject.getNearestOfType("Peep", x, y, function(peep)
-			return peep:isPeepType("Soldier") end)
+			return peep:canFireAt(x, y) end)
 		if soldier then
-			Missile(soldier.x, soldier.y, x, y)
+			soldier:fireAt(x, y)
 		end
 		selected_tile = nil
 	else
