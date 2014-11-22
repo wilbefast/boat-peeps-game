@@ -45,6 +45,8 @@ WORLD_W = 1280
 WORLD_H = 720
 WORLD_CANVAS = love.graphics.newCanvas(WORLD_W, WORLD_H)
 
+LAND_W = WORLD_W*0.2
+
 VIEW_W = 0
 VIEW_H = 0
 

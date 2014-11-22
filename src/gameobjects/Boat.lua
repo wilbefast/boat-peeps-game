@@ -44,7 +44,15 @@ function Boat:update(dt)
 	GameObject.update(self, dt)
 
 	self.dx = useful.lerp(self.dx, -32, dt)
-	self.dy = self.dy + math.random()*dt
+	self.dy = self.dy + useful.signedRand(dt)
+
+	if (self.y < 32 and self.dy < 0) or (self.y > WORLD_H - 32 and self.dy > 0) then
+		self.dy = -self.dy
+	end
+
+	if self.x < LAND_W + 32 then
+		self.purge = true
+	end
 end
 
 function Boat:draw(x, y)

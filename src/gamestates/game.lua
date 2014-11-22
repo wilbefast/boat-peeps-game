@@ -18,8 +18,6 @@ local state = gamestate.new()
 Defines
 --]]--
 
-local LAND_W = WORLD_W*0.2
-
 local t = 0
 
 local spawn_positions = useful.deck()
@@ -29,7 +27,7 @@ end
 
 local base_grid = nil
 
-local selected_slot = nil
+local selected_tile = nil
 
 local base_menu = nil
 local menu_farm = {
@@ -51,7 +49,7 @@ local menu_factory = {
 local menu_turret = {
 	draw = function(self, x, y)
 		love.graphics.setColor(0, 0, 255)
-			love.graphics.printf("Turret", x, y, 0, "center")
+			love.graphics.printf("Barracks", x, y, 0, "center")
 			love.graphics.circle("line", x, y, 24)
 		useful.bindWhite()
 	end
@@ -76,17 +74,15 @@ end
 function state:enter()
 	t = 0
 	base_grid = CollisionGrid(BaseSlot, LAND_W/4, WORLD_H/10, 4, 10)
-
-	selected_slot = nil
-
-	base_menu = RadialMenu(32)
-
-
-	
-	base_menu:addOption(menu_farm, 0)
-	base_menu:addOption(menu_factory, math.pi*0.5)
-	base_menu:addOption(menu_turret, math.pi)
-	base_menu:addOption(menu_university, math.pi*1.5)
+	base_grid:map(function(t)
+		local m = RadialMenu(32, t.x + t.w*0.5, t.y + t.w*0.5)
+		m:addOption(menu_farm, 0)
+		m:addOption(menu_factory, math.pi*0.5)
+		m:addOption(menu_turret, math.pi)
+		m:addOption(menu_university, math.pi*1.5)
+		t.menu = m
+	end)
+	selected_tile = nil
 end
 
 
@@ -105,18 +101,23 @@ function state:keypressed(key, uni)
 end
 
 function state:mousepressed(x, y)
-	local t = base_grid:pixelToTile(x, y)
-	if t then
-		if selected_slot then
-			selected_slot = nil
-		else
-			selected_slot = t
-			base_menu.dx, base_menu.dy = t.x + t.w*0.5, t.y + t.h*0.5
-		end
-	else
-		selected_slot = nil
+
+	if x > LAND_W + 32 then
 		Explosion(x, y)
-	end
+	else
+		local opt = selected_tile and selected_tile.menu:pick(x, y)
+
+		if opt then
+			selected_tile = nil
+		else
+			local t = base_grid:pixelToTile(x, y)
+			if t then
+				selected_tile = t
+			else
+				selected_tile = nil
+			end
+		end
+	end	
 end
 
 function state:update(dt)
@@ -128,11 +129,14 @@ function state:update(dt)
 		t = 0
 	end
 
-	if selected_slot then
-		base_menu:open(3*dt)
-	else
-		base_menu:close(3*dt)
-	end
+	base_grid:map(function(t)
+		if t == selected_tile then
+			t.menu:open(3*dt)
+		else
+			t.menu:close(3*dt)
+		end
+	end)
+
 end
 
 function state:draw()
@@ -147,9 +151,9 @@ function state:draw()
 	foregroundb.batch:clear()
 
 	-- interface
-	if base_menu.dx then
-		base_menu:draw(base_menu.dx, base_menu.dy)
-	end
+	base_grid:map(function(t)
+		t.menu:draw()
+	end)
 end
 
 
