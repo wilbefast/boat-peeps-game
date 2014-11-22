@@ -18,6 +18,9 @@ Initialisation
 
 local Boat = Class
 {
+	MAX_DX = 32,
+	MAX_DY = 32,
+
   type = GameObject.newType("Boat"),
 
   init = function(self, x, y)
@@ -43,15 +46,18 @@ function Boat:update(dt)
 
 	GameObject.update(self, dt)
 
-	self.dx = useful.lerp(self.dx, -32, dt)
+	self.dx = useful.lerp(self.dx, -self.MAX_DX, dt)
 	self.dy = self.dy + useful.signedRand(dt)
 
 	if (self.y < 32 and self.dy < 0) or (self.y > WORLD_H - 32 and self.dy > 0) then
 		self.dy = -self.dy
 	end
 
-	if self.x < LAND_W + 32 then
+	if self.x < LAND_W + 16 then
 		self.purge = true
+		for i = 1, 3 do
+			Peep(self.x + useful.signedRand(4), self.y + useful.signedRand(4), Peep.Beggar)
+		end
 	end
 end
 
@@ -65,9 +71,11 @@ end
 Collisions
 --]]--
 
-function Boat:eventCollision(other)
+function Boat:eventCollision(other, dt)
 	if other:isType("Explosion") then
 		self.purge = true
+	elseif other:isType("Boat") then
+		other:shoveAwayFrom(self, 10*dt)
 	end
 end
 

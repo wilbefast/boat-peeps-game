@@ -23,6 +23,7 @@ local Explosion = Class
   init = function(self, x, y)
     GameObject.init(self, x, y, 0, 0)
     self.t = 0
+    shake = shake + 10
   end,
 }
 Explosion:include(GameObject)

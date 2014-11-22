@@ -25,43 +25,22 @@ for i = 1, 9 do
 	spawn_positions.stack(i*0.1*WORLD_H)
 end
 
-local base_grid = nil
+base_grid = nil
 
 local selected_tile = nil
 
-local base_menu = nil
-local menu_farm = {
-	draw = function(self, x, y)
-		love.graphics.setColor(0, 0, 255)
-			love.graphics.printf("Farm", x, y, 0, "center")
-			love.graphics.circle("line", x, y, 24)
-		useful.bindWhite()
-	end
-}
-local menu_factory = {
-	draw = function(self, x, y)
-		love.graphics.setColor(0, 0, 255)
-			love.graphics.printf("Factory", x, y, 0, "center")
-			love.graphics.circle("line", x, y, 24)
-		useful.bindWhite()
-	end
-}
-local menu_turret = {
-	draw = function(self, x, y)
-		love.graphics.setColor(0, 0, 255)
-			love.graphics.printf("Barracks", x, y, 0, "center")
-			love.graphics.circle("line", x, y, 24)
-		useful.bindWhite()
-	end
-}
-local menu_university = {
-	draw = function(self, x, y)
-		love.graphics.setColor(0, 0, 255)
-			love.graphics.printf("University", x, y, 0, "center")
-			love.graphics.circle("line", x, y, 24)
-		useful.bindWhite()
-	end
-}
+local building_menu = nil
+for name, t in pairs(Building.types) do
+	t.menuOption = {
+		type = t,
+		draw = function(self, x, y)
+			love.graphics.setColor(0, 0, 255)
+				love.graphics.printf(name, x, y, 0, "center")
+				love.graphics.circle("line", x, y, 24)
+			useful.bindWhite()
+		end
+	}
+end
 
 --[[------------------------------------------------------------
 Gamestate navigation
@@ -76,13 +55,17 @@ function state:enter()
 	base_grid = CollisionGrid(BaseSlot, TILE_W, TILE_H, N_TILES_ACROSS, N_TILES_DOWN, GRID_X, GRID_Y)
 	base_grid:map(function(t)
 		local m = RadialMenu(32, t.x + t.w*0.5, t.y + t.w*0.5)
-		m:addOption(menu_farm, 0)
-		m:addOption(menu_factory, math.pi*0.5)
-		m:addOption(menu_turret, math.pi)
-		m:addOption(menu_university, math.pi*1.5)
+		m:addOption(Building.Farm.menuOption, 0)
+		m:addOption(Building.Factory.menuOption, math.pi*0.5)
+		m:addOption(Building.Base.menuOption, math.pi)
+		m:addOption(Building.University.menuOption, math.pi*1.5)
 		t.menu = m
 	end)
 	selected_tile = nil
+
+	for i = 1, 10 do
+		Peep(100 + math.random(3), 100 + math.random(3), Peep.Beggar)
+	end
 end
 
 
@@ -109,7 +92,7 @@ function state:mousepressed(x, y)
 		local opt = selected_tile and selected_tile.menu:pick(x, y)
 
 		if opt then
-			Building(selected_tile, "DERP")
+			Building(selected_tile, opt.type)
 			selected_tile = nil
 		else
 			local t = base_grid:pixelToTile(x, y)
@@ -142,9 +125,16 @@ function state:update(dt)
 end
 
 function state:draw()
-	-- background
-	love.graphics.rectangle("fill", 0, 0, LAND_W, WORLD_H)
+	-- land
+	love.graphics.setColor(250, 130, 30)
+		love.graphics.rectangle("fill", 0, 0, LAND_W, WORLD_H)
+	useful.bindWhite()
 	base_grid:draw()
+
+	-- sea
+	love.graphics.setColor(30, 200, 250)
+		love.graphics.rectangle("fill", LAND_W, 0, WORLD_W - LAND_W, WORLD_H)
+	useful.bindWhite()
 
 	-- objects
 	fudge.set( { current = foregroundb } )

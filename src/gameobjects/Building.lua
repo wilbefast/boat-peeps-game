@@ -28,6 +28,24 @@ local Building = Class
 }
 Building:include(GameObject)
 
+--[[------------------------------------------------------------
+Sub-types
+--]]--
+
+Building.types = {
+  Farm = {
+  },
+  University = {
+  },
+  Base = {
+  },
+  Factory = {
+  }
+}
+for name, type in pairs(Building.types) do
+  Building[name] = type
+  type.name = name
+end
 
 
 --[[------------------------------------------------------------
@@ -48,8 +66,9 @@ end
 function Building:draw(x, y)
 	love.graphics.setColor(0, 0, 255)
 		self.DEBUG_VIEW:draw(self)
-		love.graphics.printf(self.buildingType, x, y, 0, "center")
+		love.graphics.printf(self.buildingType.name, x, y, 0, "center")
 	useful.bindWhite()
+
 end
 
 --[[------------------------------------------------------------

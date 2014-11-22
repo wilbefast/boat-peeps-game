@@ -13,7 +13,7 @@ Lesser General Public License for more details.
 --]]
 
 -------------------------------------------------------------------------------
--- INCLUDES
+-- LIBRARY INCLUDES
 -------------------------------------------------------------------------------
 
 fudge = require("fudge/src/fudge")
@@ -32,8 +32,31 @@ Controller = require("unrequited/Controller")
 RadialMenu = require("unrequited/RadialMenu")
 CollisionGrid = require("unrequited/CollisionGrid")
 
+-------------------------------------------------------------------------------
+-- MONKEY PATCHING
+-------------------------------------------------------------------------------
+
+function GameObject:shove(dx, dy, force)
+	if self.isStatic then
+		return
+	end
+	dx, dy = Vector.normalize(dx, dy)
+	self.dx, self.dy = self.dx + dx*force, self.dy + dy*force
+end
+
+function GameObject:shoveAwayFrom(from, force)
+	local dx, dy = self.x - from.x, self.y - from.y
+	self:shove(dx, dy, force)
+end
+
+
+-------------------------------------------------------------------------------
+-- GAME INCLUDES
+-------------------------------------------------------------------------------
+
 BaseSlot = require("BaseSlot")
 
+Peep = require("gameobjects/Peep")
 Building = require("gameobjects/Building")
 Boat = require("gameobjects/Boat")
 Explosion = require("gameobjects/Explosion")
@@ -65,15 +88,17 @@ VIEW_SCALE = 1
 DEBUG = false
 
 -------------------------------------------------------------------------------
+-- GLOBAL VARIABLES
+-------------------------------------------------------------------------------
+
+shake = 0
+
+-------------------------------------------------------------------------------
 -- GAME STATES
 -------------------------------------------------------------------------------
 
 game = require("gamestates/game")
 title = require("gamestates/title")
-
--------------------------------------------------------------------------------
--- LOVE CALLBACKS
--------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
 -- LOVE CALLBACKS
@@ -92,7 +117,7 @@ love.load = function()
   fudge.set({ monkey = true })
   foregroundb = fudge.new("assets/foreground", { npot = false })
 
-	gamestate.registerEvents{ 'update', 'quit', 'keypressed', 'keyreleased' }
+	gamestate.registerEvents{ 'quit', 'keypressed', 'keyreleased' }
 	gamestate.switch(title)
 end
 
@@ -103,12 +128,20 @@ love.draw = function()
 
 	love.graphics.push()
 		love.graphics.scale(VIEW_SCALE, VIEW_SCALE)
+		love.graphics.translate(useful.signedRand(shake), useful.signedRand(shake))
 		gamestate.draw()
 	love.graphics.pop()
 
 	if DEBUG then
 		log:draw(32, 32)
 	end
+end
+
+love.update = function(dt)
+  if shake > 0 then
+    shake = math.max(0, shake - 10*dt*shake)
+  end
+  gamestate.update(dt)
 end
 
 love.mousepressed = function(x, y, button)
