@@ -25,6 +25,8 @@ for i = 1, 9 do
 	spawn_positions.stack(i*0.1*WORLD_H)
 end
 
+local active_soldier = nil
+
 base_grid = nil
 
 local selected_tile = nil
@@ -62,6 +64,7 @@ function state:enter()
 		t.menu = m
 	end)
 	selected_tile = nil
+	active_soldier = nil
 
 	for i = 1, 3 do 
 		Peep(GRID_X + math.random(N_TILES_ACROSS)*TILE_W, 
@@ -88,10 +91,8 @@ end
 function state:mousepressed(x, y)
 
 	if x > LAND_W + 32 then
-		local soldier = GameObject.getNearestOfType("Peep", x, y, function(peep)
-			return peep:canFireAt(x, y) end)
-		if soldier then
-			soldier:fireAt(x, y)
+		if active_soldier then
+			active_soldier:fireAt(x, y)
 		end
 		selected_tile = nil
 	else
@@ -113,6 +114,10 @@ end
 
 function state:update(dt)
 	GameObject.updateAll(dt, self.view)
+
+	local mx, my = love.mouse.getPosition()
+	active_soldier = GameObject.getNearestOfType("Peep", mx, my, function(peep)
+		return peep:canFireAt(mx, my) end)
 
 	t = t + dt
 	if t > 3 then
@@ -152,6 +157,15 @@ function state:draw()
 	base_grid:map(function(t)
 		t.menu:draw()
 	end)
+
+	if active_soldier then
+		local mx, my = love.mouse.getPosition()
+		if mx > LAND_W + 32 then
+			love.graphics.circle("line", mx, my, 10)
+			love.graphics.circle("line", active_soldier.x, active_soldier.y, 10)
+			love.graphics.line(active_soldier.x, active_soldier.y, mx, my)
+		end
+	end
 end
 
 

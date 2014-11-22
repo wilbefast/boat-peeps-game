@@ -49,6 +49,12 @@ function GameObject:shoveAwayFrom(from, force)
 	self:shove(dx, dy, force)
 end
 
+local __old_love_mouse_getPosition = love.mouse.getPosition
+
+love.mouse.getPosition = function()
+	local x, y = __old_love_mouse_getPosition()
+	return x/VIEW_SCALE, y/VIEW_SCALE
+end
 
 -------------------------------------------------------------------------------
 -- GAME INCLUDES

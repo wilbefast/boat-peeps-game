@@ -48,8 +48,7 @@ Building.types = {
   Base = {
     jobType = "Soldier",
     updatePeep = function(peep, dt)
-      log:write("PEEEEP")
-      if peep.ammo < 1 then
+      if (peep.ammo < 1) and (peep.state.name ~= "reloading") then
         peep:setState(Peep.stateGetAmmo)
       end
     end
@@ -96,6 +95,15 @@ function Building:fireAll()
   self.workers = {}
 end
 
+function Building:maxWorkers()
+  return 1
+end
+
+--[[------------------------------------------------------------
+Construction / repairs
+--]]--
+
+
 function Building:build(amount)
   if self.construction < 1 then
     self.construction = math.min(1, self.construction + amount)
@@ -120,7 +128,7 @@ Game loop
 
 function Building:update(dt)
   useful.purge(self.workers)
-  if #self.workers < 3 then
+  if #self.workers < self.maxWorkers() then
     local newbie = GameObject.getNearestOfType("Peep", self.x, self.y, function(peep)
       return peep:isPeepType("Citizen")
     end)

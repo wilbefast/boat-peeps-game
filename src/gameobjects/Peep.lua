@@ -107,11 +107,27 @@ Peep.stateGetAmmo = function(peep)
         return
       end
       if peep:isNear(armoury) then
-        peep.ammo = 1
-        peep:setState(Peep.stateIdle)
+        peep:setState(Peep.stateReloading)
         return
       else
         peep:accelerateTowardsObject(armoury, 128*dt)
+      end
+    end
+  }
+end
+
+Peep.stateReloading = function(peep) 
+
+  local t = 0
+
+  return {
+    name = "reloading",
+
+    update = function(dt)
+      t = t + dt
+      if t > 1.5 then
+        peep.ammo = peep.ammo + 1
+        peep:setState(Peep.stateWander)
       end
     end
   }
