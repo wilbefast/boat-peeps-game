@@ -56,6 +56,7 @@ end
 
 BaseSlot = require("BaseSlot")
 
+Missile = require("gameobjects/Missile")
 Peep = require("gameobjects/Peep")
 Building = require("gameobjects/Building")
 Boat = require("gameobjects/Boat")

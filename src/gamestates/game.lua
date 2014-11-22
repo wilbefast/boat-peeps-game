@@ -63,9 +63,11 @@ function state:enter()
 	end)
 	selected_tile = nil
 
-	for i = 1, 10 do
-		Peep(100 + math.random(3), 100 + math.random(3), Peep.Beggar)
+	for i = 1, 3 do 
+		Peep(GRID_X + math.random(N_TILES_ACROSS)*TILE_W, 
+				GRID_Y + math.random(N_TILES_DOWN)*TILE_H, Peep.Citizen)
 	end
+
 end
 
 
@@ -86,17 +88,21 @@ end
 function state:mousepressed(x, y)
 
 	if x > LAND_W + 32 then
-		Explosion(x, y)
+		local soldier = GameObject.getNearestOfType("Peep", x, y, function(peep)
+			return peep:isPeepType("Soldier") end)
+		if soldier then
+			Missile(soldier.x, soldier.y, x, y)
+		end
 		selected_tile = nil
 	else
 		local opt = selected_tile and selected_tile.menu:pick(x, y)
 
 		if opt then
-			Building(selected_tile, opt.type)
+			selected_tile.building = Building(selected_tile, opt.type)
 			selected_tile = nil
 		else
 			local t = base_grid:pixelToTile(x, y)
-			if t then
+			if t and not t.building then
 				selected_tile = t
 			else
 				selected_tile = nil

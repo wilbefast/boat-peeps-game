@@ -16,63 +16,58 @@ Lesser General Public License for more details.
 Initialisation
 --]]--
 
-local Building = Class
+local Missile = Class
 {
-  type = GameObject.newType("Building"),
+  type = GameObject.newType("Missile"),
 
-  init = function(self, tile, buildingType)
-  	local x, y = tile.x + tile.w*0.5, tile.y + tile.h*0.5
-    GameObject.init(self, x, y, tile.w*0.4)
-    self.buildingType = buildingType
+  init = function(self, x, y, tx, ty)
+    GameObject.init(self, x, y, 2)
+    self.start_x, self.start_y = x, y
+    self.target_x, self.target_y = tx, ty
+    self.t = 0
+    self.z = 0
+    self.dist = Vector.dist(x, y, tx, ty)
   end,
 }
-Building:include(GameObject)
+Missile:include(GameObject)
 
---[[------------------------------------------------------------
-Sub-types
---]]--
-
-Building.types = {
-  Farm = {
-  },
-  University = {
-  },
-  Base = {
-  },
-  Factory = {
-  }
-}
-for name, type in pairs(Building.types) do
-  Building[name] = type
-  type.name = name
-end
 
 
 --[[------------------------------------------------------------
 Destruction
 --]]--
 
-function Building:onPurge()
+function Missile:onPurge()
+	Explosion(self.x, self.y)
 end
 
 --[[------------------------------------------------------------
 Game loop
 --]]--
 
-function Building:update(dt)
+function Missile:update(dt)
+	self.t = self.t + math.min(3*dt, 300*dt/self.dist)
+	self.x = useful.lerp(self.start_x, self.target_x, self.t)
+	self.y = useful.lerp(self.start_y, self.target_y, self.t)
 
+	local life = 1-self.t
+  local parabola = -(2*life-1)*(2*life-1) + 1
+  self.z = parabola*48*self.dist/WORLD_W
+
+	if self.t > 1 then
+		self.purge = true
+	end
 end
 
-function Building:draw(x, y)
-	love.graphics.setColor(0, 0, 255)
-		self.DEBUG_VIEW:draw(self)
-		love.graphics.printf(self.buildingType.name, x, y, 0, "center")
+function Missile:draw(x, y)
+	love.graphics.circle("fill", self.x, self.y - self.z, 4)
+	useful.bindBlack()
+		love.graphics.circle("fill", self.x, self.y, 2)
 	useful.bindWhite()
-
 end
 
 --[[------------------------------------------------------------
 Export
 --]]--
 
-return Building
+return Missile

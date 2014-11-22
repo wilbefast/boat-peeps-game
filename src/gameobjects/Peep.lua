@@ -23,9 +23,9 @@ local Peep = Class
   type = GameObject.newType("Peep"),
 
   init = function(self, x, y, peepType)
-    GameObject.init(self, x, y, 8, 8)
+    GameObject.init(self, x, y, 5)
     self.peepType = peepType
-    self.state = { update = function(self, dt) self:setState(self.stateIdle()) end}
+    self.state = { update = function(dt) self:setState(self.stateWander) end}
   end,
 }
 Peep:include(GameObject)
@@ -36,6 +36,8 @@ Sub-types
 
 Peep.types = {
   Beggar = {
+  },
+  Citizen = {
   },
   Farmer = {
   },
@@ -49,6 +51,9 @@ for name, type in pairs(Peep.types) do
   type.name = name
 end
 
+function Peep:isPeepType(type)
+  return self.peepType == Peep[type]
+end
 
 --[[------------------------------------------------------------
 Destruction
@@ -62,6 +67,7 @@ States
 --]]--
 
 function Peep:setState(newState)
+  newState = newState(self)
   local oldState = self.state
   if oldState.exitTo then
     oldState.exitTo(newState)
@@ -72,18 +78,46 @@ function Peep:setState(newState)
   self.state = newState
 end
 
-Peep.stateWander = function(self) return {
-  name = "idle",
-  update = function(dt)
-  end
-}
+Peep.stateWander = function(peep) 
+  local dest = nil
+  return {
+
+    name = "wander",
+
+    enterFrom = function(prev)
+      dest = { 
+        x = base_grid.x + math.random(base_grid.w)*base_grid.tilew,
+        y = base_grid.y + math.random(base_grid.h)*base_grid.tileh
+      }
+    end,
+
+    update = function(dt)
+      peep:accelerateTowardsObject(dest, 128*dt)
+      if math.abs(peep.x - dest.x) < peep.r and math.abs(peep.y - dest.y) < peep.r then
+        peep:setState(peep.stateIdle)
+        return
+      end
+    end
+  }
 end
 
-Peep.stateIdle = function(self) return {
-  name = "idle",
-  update = function(dt)
-  end
-}
+Peep.stateIdle = function(peep)
+  local t = nil
+  return {
+
+    name = "idle",
+
+    enterFrom = function(prev)
+      t = 0
+    end,
+
+    update = function(dt)
+      t = t + dt
+      if t > 3 then
+        peep:setState(peep.stateWander)
+      end
+    end
+  }
 end
 
 --[[------------------------------------------------------------
@@ -93,7 +127,7 @@ Game loop
 function Peep:update(dt)
   GameObject.update(self, dt)
 
-  self.state.update(self, dt)
+  self.state.update(dt)
 
   if not self.dest then
     self.dest = { 
@@ -101,10 +135,8 @@ function Peep:update(dt)
       y = base_grid.y + math.random(base_grid.h)*base_grid.tileh
   }
   else
-    self:accelerateTowardsObject(self.dest, 128*dt)
-    if math.abs(self.x - self.dest.x) < self.w and math.abs(self.y - self.dest.y) < self.h then
-      self.dest = nil
-    end
+    
+
   end
 end
 
