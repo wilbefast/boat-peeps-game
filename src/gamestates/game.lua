@@ -68,7 +68,7 @@ function state:enter()
 
 	for i = 1, 3 do 
 		Peep(GRID_X + math.random(N_TILES_ACROSS)*TILE_W, 
-				GRID_Y + math.random(N_TILES_DOWN)*TILE_H, Peep.Citizen)
+				GRID_Y + math.random(N_TILES_DOWN)*TILE_H, Peep.Soldier).ammo = 200
 	end
 
 end
@@ -76,6 +76,7 @@ end
 
 function state:leave()
 	GameObject.purgeAll()
+	WORLD_CANVAS:clear()
 end
 
 --[[------------------------------------------------------------
@@ -113,7 +114,7 @@ function state:mousepressed(x, y)
 end
 
 function state:update(dt)
-	GameObject.updateAll(dt, self.view)
+	GameObject.updateAll(dt, { oblique = VIEW_OBLIQUE })
 
 	local mx, my = love.mouse.getPosition()
 	active_soldier = GameObject.getNearestOfType("Peep", mx, my, function(peep)
@@ -146,6 +147,12 @@ function state:draw()
 	love.graphics.setColor(30, 200, 250)
 		love.graphics.rectangle("fill", LAND_W, 0, WORLD_W - LAND_W, WORLD_H)
 	useful.bindWhite()
+
+	-- shadows
+	useful.bindWhite(128)
+		love.graphics.draw(SHADOW_CANVAS, 0, 0)
+		SHADOW_CANVAS:clear()
+	useful.bindWhite(255)
 
 	-- objects
 	fudge.set( { current = foregroundb } )

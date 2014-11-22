@@ -67,6 +67,7 @@ Peep = require("gameobjects/Peep")
 Building = require("gameobjects/Building")
 Boat = require("gameobjects/Boat")
 Explosion = require("gameobjects/Explosion")
+Particle = require("gameobjects/Particle")
 
 -------------------------------------------------------------------------------
 -- DEFINES
@@ -75,6 +76,7 @@ Explosion = require("gameobjects/Explosion")
 WORLD_W = 1280
 WORLD_H = 720
 WORLD_CANVAS = love.graphics.newCanvas(WORLD_W, WORLD_H)
+SHADOW_CANVAS = love.graphics.newCanvas(WORLD_W, WORLD_H)
 
 LAND_W = WORLD_W*0.2
 
@@ -89,6 +91,8 @@ GRID_Y = (WORLD_H - GRID_H)/2
 
 VIEW_W = 0
 VIEW_H = 0
+
+VIEW_OBLIQUE = 0.75
 
 VIEW_SCALE = 1
 
@@ -136,7 +140,8 @@ love.draw = function()
 	love.graphics.push()
 		love.graphics.scale(VIEW_SCALE, VIEW_SCALE)
 		love.graphics.translate(useful.signedRand(shake), useful.signedRand(shake))
-		gamestate.draw()
+		love.graphics.draw(WORLD_CANVAS)
+		--love.graphics.draw(SHADOW_CANVAS)
 	love.graphics.pop()
 
 	if DEBUG then

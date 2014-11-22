@@ -27,6 +27,15 @@ local Missile = Class
     self.t = 0
     self.z = 0
     self.dist = Vector.dist(x, y, tx, ty)
+    self.dx, self.dy = (tx - x)/self.dist, (ty - y)/self.dist
+
+    for i = 1, 3 do
+    	local angle = math.random()*math.pi*2
+    	local dx, dy, dz = math.cos(angle) - self.dx, math.sin(angle) - self.dy, math.random()
+    	local speed = 64 + math.random()*32
+    	Particle.Smoke(self.x, self.y, speed*dx, speed*dy, speed*dz)
+    end
+
   end,
 }
 Missile:include(GameObject)
@@ -46,13 +55,24 @@ Game loop
 --]]--
 
 function Missile:update(dt)
+	local prev_t = self.t
 	self.t = self.t + math.min(3*dt, 300*dt/self.dist)
 	self.x = useful.lerp(self.start_x, self.target_x, self.t)
 	self.y = useful.lerp(self.start_y, self.target_y, self.t)
 
 	local life = 1-self.t
+	-- 1 - (2x - 1)^2
   local parabola = -(2*life-1)*(2*life-1) + 1
   self.z = parabola*48*self.dist/WORLD_W
+
+  -- smoke!
+  if math.random() > 0.3 then
+		local s = Particle.TrailSmoke(self.x, self.y, 
+			-128*self.dx + useful.signedRand(8), 
+			-128*self.dy + useful.signedRand(8),
+			-4*(life-10 - 2) + useful.signedRand(10))
+		s.z = self.z
+	end
 
 	if self.t > 1 then
 		self.purge = true
@@ -60,10 +80,21 @@ function Missile:update(dt)
 end
 
 function Missile:draw(x, y)
-	love.graphics.circle("fill", self.x, self.y - self.z, 4)
+
+	local dx, dy = 8*self.dx, 8*self.dy
+	local tx, ty = x, y - self.z
 	useful.bindBlack()
-		love.graphics.circle("fill", self.x, self.y, 2)
-	useful.bindWhite()
+	love.graphics.polygon("fill", 
+		tx + dx, ty + dy, 
+		tx + dy*0.2, ty - dx*0.2, 
+		tx - dy*0.2, ty + dx*0.2)
+
+
+	useful.pushCanvas(SHADOW_CANVAS)
+		useful.bindBlack()
+			useful.oval("fill", self.x, self.y, 2, 2*VIEW_OBLIQUE)
+		useful.bindWhite()
+	useful.popCanvas()
 end
 
 --[[------------------------------------------------------------

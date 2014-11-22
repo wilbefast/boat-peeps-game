@@ -24,6 +24,19 @@ local Explosion = Class
     GameObject.init(self, x, y, 0, 0)
     self.t = 0
     shake = shake + 10
+
+    for i = 1, 10 do
+    	local angle = math.random()*math.pi*2
+    	local dx, dy, dz = math.cos(angle), math.sin(angle), math.random()
+    	local speed = 128 + math.random()*64
+    	Particle.Smoke(self.x, self.y, speed*dx, speed*dy, speed*dz)
+    end
+    for i = 1, 30 do
+    	local angle = math.random()*math.pi*2
+    	local dx, dy, dz = math.cos(angle), math.sin(angle), math.random()
+    	local speed = 128 + math.random()*64
+    	Particle.Fire(self.x, self.y, speed*dx, speed*dy, speed*0.5*dz)
+    end
   end,
 }
 Explosion:include(GameObject)
@@ -42,8 +55,6 @@ function Explosion:update(dt)
 end
 
 function Explosion:draw(x, y)
-	self.DEBUG_VIEW:draw(self)
-	--GameObject.draw(self)
 end
 
 
