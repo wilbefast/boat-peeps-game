@@ -73,7 +73,7 @@ end
 
 function state:enter()
 	t = 0
-	base_grid = CollisionGrid(BaseSlot, LAND_W/4, WORLD_H/10, 4, 10)
+	base_grid = CollisionGrid(BaseSlot, TILE_W, TILE_H, N_TILES_ACROSS, N_TILES_DOWN, GRID_X, GRID_Y)
 	base_grid:map(function(t)
 		local m = RadialMenu(32, t.x + t.w*0.5, t.y + t.w*0.5)
 		m:addOption(menu_farm, 0)
@@ -104,10 +104,12 @@ function state:mousepressed(x, y)
 
 	if x > LAND_W + 32 then
 		Explosion(x, y)
+		selected_tile = nil
 	else
 		local opt = selected_tile and selected_tile.menu:pick(x, y)
 
 		if opt then
+			Building(selected_tile, "DERP")
 			selected_tile = nil
 		else
 			local t = base_grid:pixelToTile(x, y)

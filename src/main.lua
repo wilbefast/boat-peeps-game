@@ -34,6 +34,7 @@ CollisionGrid = require("unrequited/CollisionGrid")
 
 BaseSlot = require("BaseSlot")
 
+Building = require("gameobjects/Building")
 Boat = require("gameobjects/Boat")
 Explosion = require("gameobjects/Explosion")
 
@@ -46,6 +47,15 @@ WORLD_H = 720
 WORLD_CANVAS = love.graphics.newCanvas(WORLD_W, WORLD_H)
 
 LAND_W = WORLD_W*0.2
+
+TILE_W = LAND_W/4
+TILE_H = TILE_W
+N_TILES_ACROSS = math.floor(LAND_W/TILE_W - 1)
+N_TILES_DOWN = math.floor(WORLD_H/TILE_H - 1)
+GRID_W = TILE_W*N_TILES_ACROSS
+GRID_H = TILE_H*N_TILES_DOWN
+GRID_X = (LAND_W - GRID_W)/2
+GRID_Y = (WORLD_H - GRID_H)/2
 
 VIEW_W = 0
 VIEW_H = 0
