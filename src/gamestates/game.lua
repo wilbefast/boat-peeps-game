@@ -267,6 +267,7 @@ function state:draw()
 		local mx, my = love.mouse.getPosition()
 		love.graphics.setLineWidth(2)
 		if mx > LAND_W + 32 then
+
 			if active_missile then
 				love.graphics.setColor(255, 100, 255)
 					love.graphics.circle("fill", mx, my, 10)
@@ -281,14 +282,15 @@ function state:draw()
 					love.graphics.line(mx + 4, my, mx + 12, my)
 					love.graphics.line(mx, my + 4, mx, my + 12)
 				useful.bindWhite()
+
 			elseif active_soldier then
 				love.graphics.setColor(255, 50, 50)
 					love.graphics.circle("fill", mx, my, 10)
-					love.graphics.circle("fill", active_soldier.x, active_soldier.y, 10)
+					love.graphics.rectangle("fill", active_soldier.x - 16, active_soldier.y - 40, 32, 50)
 					love.graphics.line(active_soldier.x, active_soldier.y, mx, my)
 					love.graphics.setBlendMode("subtractive")
 						love.graphics.circle("fill", mx, my, 8)
-						love.graphics.circle("fill", active_soldier.x, active_soldier.y, 8)
+						love.graphics.rectangle("fill", active_soldier.x - 14, active_soldier.y - 38, 28, 46)
 					love.graphics.setBlendMode("alpha")
 					love.graphics.line(mx, my - 4, mx, my - 12)
 					love.graphics.line(mx - 4, my, mx - 12, my)
@@ -298,14 +300,14 @@ function state:draw()
 			end
 		else
 			if active_citizen and hovered_tile and (not selected_tile) then
-				love.graphics.setColor(255, 255, 100)
+				love.graphics.setColor(255, 255, 50)
 					local hx, hy = hovered_tile.x + hovered_tile.w*0.5, hovered_tile.y + hovered_tile.h*0.5
 					love.graphics.rectangle("fill", hx - 24, hy - 24, 48, 48)
-					love.graphics.circle("fill", active_citizen.x, active_citizen.y, 10)
+					love.graphics.rectangle("fill", active_citizen.x - 16, active_citizen.y - 40, 32, 50)
 					love.graphics.line(active_citizen.x, active_citizen.y, hx, hy)
 					love.graphics.setBlendMode("subtractive")
 						love.graphics.rectangle("fill", hx - 22, hy - 22, 44, 44)
-						love.graphics.circle("fill", active_citizen.x, active_citizen.y, 8)
+						love.graphics.rectangle("fill", active_citizen.x - 14, active_citizen.y - 38, 28, 46)
 					love.graphics.setBlendMode("alpha")
 				useful.bindWhite()
 			end

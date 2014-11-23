@@ -75,6 +75,9 @@ Building.types = {
       if (peep.hunger < 1) and (n_unmolested > 0) then
         peep:setState(Peep.stateRiot)
       end
+    end,
+    draw = function(self)
+      fudge.addb("policestation", self.x, self.y, 0, 1, 1, 32, 32)
     end
   },
   SocialServices = {
@@ -83,6 +86,9 @@ Building.types = {
       if (peep.hunger < 1) and (n_unmolested > 0) then
         peep:setState(Peep.stateConvert)
       end
+    end,
+    draw = function(self)
+      fudge.addb("church", self.x, self.y, 0, 1, 1, 32, 32)
     end
   }
 }
@@ -178,6 +184,11 @@ function Building:draw(x, y)
   if self.buildingType.draw then
     self.buildingType.draw(self)
   end
+  useful.pushCanvas(SHADOW_CANVAS)
+    useful.bindBlack()
+      love.graphics.rectangle("fill", self.x - self.r*1.5, self.y - self.r*1.5 + 4, self.r*3, self.r*3)
+    useful.bindWhite()
+  useful.popCanvas()
 end
 
 --[[------------------------------------------------------------

@@ -28,6 +28,7 @@ local Peep = Class
     self.state = { update = function(dt) self:setState(self.stateWander) end}
     self.ammo = 0
     self.hunger = math.random()*0.2
+    self.t = math.random()
   end,
 }
 Peep:include(GameObject)
@@ -38,53 +39,56 @@ Sub-types
 
 Peep.types = {
   Beggar = {
+    draw = function(peep, x, y)
+      fudge.addb("peep_refugee", x, y, 0, 1, 1, 16, 32)
+    end
   },
   Citizen = {
     onBecome = function(peep)
       peep:setState(Peep.stateIdle)
     end,
-    draw = function(peep)
-      fudge.addb("peep_citizen", peep.x, peep.y, 0, 1, 1, 16, 32)
+    draw = function(peep, x, y)
+      fudge.addb("peep_citizen", x, y, 0, 1, 1, 16, 32)
     end
   },
   Farmer = {
     onBecome = function(peep, farm)
       peep:setState(Peep.stateFarm, farm)
     end,
-    draw = function(peep)
-      fudge.addb("peep_farmer", peep.x, peep.y, 0, 1, 1, 16, 32)
+    draw = function(peep, x, y)
+      fudge.addb("peep_farmer", x, y, 0, 1, 1, 16, 32)
     end
   },
   Soldier = {
     onBecome = function(peep)
       peep:setState(Peep.stateWander)
     end,
-    draw = function(peep)
-      fudge.addb("peep_soldier", peep.x, peep.y, 0, 1, 1, 16, 32)
+    draw = function(peep, x, y)
+      fudge.addb("peep_soldier", x, y, 0, 1, 1, 16, 32)
     end
   },
   Engineer = {
     onBecome = function(peep, building)
       peep:setState(Peep.stateBuild, building)
     end,
-    draw = function(peep)
-      fudge.addb("peep_construction", peep.x, peep.y, 0, 1, 1, 16, 32)
+    draw = function(peep, x, y)
+      fudge.addb("peep_construction", x, y, 0, 1, 1, 16, 32)
     end
   },
   SocialWorker = {
     onBecome = function(peep)
       peep:setState(Peep.stateConvert)
     end,
-    draw = function(peep)
-      fudge.addb("peep_priest", peep.x, peep.y, 0, 1, 1, 16, 32)
+    draw = function(peep, x, y)
+      fudge.addb("peep_priest", x, y, 0, 1, 1, 16, 32)
     end
   },
   Policeman = {
     onBecome = function(peep)
       peep:setState(Peep.stateRiot)
     end,
-    draw = function(peep)
-      fudge.addb("peep_police", peep.x, peep.y, 0, 1, 1, 16, 32)
+    draw = function(peep, x, y)
+      fudge.addb("peep_police", x, y, 0, 1, 1, 16, 32)
     end
   },
 }
@@ -202,7 +206,7 @@ Peep.stateConvert = function(peep)
         if other.conversion > 1 then
           other:setPeepType("Citizen")
           other.brutaliser = nil
-          self:setState(Peep.stateIdle)
+          peep:setState(Peep.stateIdle)
           return
         end
       else
@@ -371,6 +375,11 @@ function Peep:update(dt)
     self.dx = self.dx + 128*dt
   end
 
+  self.t = self.t + dt
+  if self.state.name == "idle" then
+    self.t = 0
+  end
+
   GameObject.update(self, dt)
 
   self.state.update(dt)
@@ -401,7 +410,8 @@ function Peep:draw(x, y)
 
 
   if self.peepType.draw then
-    self.peepType.draw(self)
+    log:write(self.t)
+    self.peepType.draw(self, x, y - 4 + 4*math.sin(20*self.t))
   end
   useful.pushCanvas(SHADOW_CANVAS)
     useful.bindBlack()
