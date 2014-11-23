@@ -34,6 +34,8 @@ local active_option = nil
 
 base_grid = nil
 
+n_beggars = 0
+
 local gameover_t = 0
 
 
@@ -84,7 +86,6 @@ function state:enter()
 	-- spawn initial units
 	for i = 1, 3 do 
 		Peep(LAND_W + useful.signedRand(4), WORLD_H*0.5 + useful.signedRand(4), Peep.Citizen)
-		Peep(LAND_W + useful.signedRand(4), WORLD_H*0.5 + useful.signedRand(4), Peep.Beggar)
 	end
 	for i = 1, 9 do
 		Food(LAND_W + useful.signedRand(4), WORLD_H*0.5 + useful.signedRand(4))
@@ -218,6 +219,10 @@ function state:update(dt)
 	if active_missile and active_missile.purge then
 		active_missile = nil
 	end
+
+	-- count beggars
+	n_beggars = GameObject.countOfTypeSuchThat("Peep", function(peep)
+				return peep:isPeepType("Beggar") end)
 end
 
 function state:draw()

@@ -60,8 +60,14 @@ Peep.types = {
     end
   },
   SocialWorker = {
+    onBecome = function(peep)
+      peep:setState(Peep.stateConvert)
+    end
   },
   Policeman = {
+    onBecome = function(peep)
+      peep:setState(Peep.stateRiot)
+    end
   },
 }
 for name, type in pairs(Peep.types) do
@@ -109,7 +115,8 @@ end
 
 Peep.stateRiot = function(peep) 
   local other = GameObject.getNearestOfType("Peep", peep.x, peep.y,
-    function(p) p:isPeepType("Beggar") end)
+    function(p) return (p:isPeepType("Beggar") and p.x < LAND_W) end)
+
   return {
 
     name = "riot",
@@ -120,9 +127,11 @@ Peep.stateRiot = function(peep)
         return
       end
       if peep:isNear(other) then
-        other:shove(1, 0, 300)
+        other:shove(1, 0, 50)
       else
-        peep:accelerateTowardsObject(other, 128*dt)
+        if peep.x < LAND_W then
+          peep:accelerateTowardsObject(other, 200*dt)
+        end
       end
     end
   }
@@ -130,7 +139,7 @@ end
 
 Peep.stateConvert = function(peep) 
   local other = GameObject.getNearestOfType("Peep", peep.x, peep.y,
-    function(p) p:isPeepType("Beggar") end)
+    function(p) return p:isPeepType("Beggar") end)
   return {
 
     name = "convert",
@@ -141,9 +150,15 @@ Peep.stateConvert = function(peep)
         return
       end
       if peep:isNear(other) then
-        other.conversion = (other.conversion or 0) + dt
+        other:setState(Peep.stateIdle)
+        other.conversion = (other.conversion or 0) + dt*0.1
+        if other.conversion > 1 then
+          other:setPeepType("Citizen")
+        end
       else
-        peep:accelerateTowardsObject(other, 128*dt)
+        if peep.x < LAND_W then
+          peep:accelerateTowardsObject(other, 200*dt)
+        end
       end
     end
   }
@@ -167,7 +182,7 @@ Peep.stateFarm = function(peep, farm)
           Food(farm.x + useful.signedRand(4), farm.y + useful.signedRand(4))
         end
       else
-        peep:accelerateTowardsObject(farm, 128*dt)
+        peep:accelerateTowardsObject(farm, 200*dt)
       end
     end
   }
@@ -190,7 +205,7 @@ Peep.stateGetFood = function(peep)
         peep.hunger = math.max(0, peep.hunger - 1)
         return
       else
-        peep:accelerateTowardsObject(food, 128*dt)
+        peep:accelerateTowardsObject(food, 200*dt)
       end
     end
   }
@@ -210,7 +225,7 @@ Peep.stateGetAmmo = function(peep, armoury)
         peep:setState(Peep.stateReloading)
         return
       else
-        peep:accelerateTowardsObject(armoury, 128*dt)
+        peep:accelerateTowardsObject(armoury, 200*dt)
       end
     end
   }
@@ -247,7 +262,7 @@ Peep.stateBuild = function(peep, building)
       if peep:isNear(building) then
         building:build(dt*0.2)
       else
-        peep:accelerateTowardsObject(building, 128*dt)
+        peep:accelerateTowardsObject(building, 200*dt)
       end
     end
   }
@@ -267,7 +282,7 @@ Peep.stateWander = function(peep, ...)
     end,
 
     update = function(dt)
-      peep:accelerateTowardsObject(dest, 128*dt)
+      peep:accelerateTowardsObject(dest, 100*dt)
       if peep:isNear(dest) then
         peep:setState(peep.stateIdle)
         return
