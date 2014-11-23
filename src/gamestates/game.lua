@@ -26,11 +26,13 @@ for i = 1, 9 do
 end
 
 local active_soldier = nil
+local active_citizen = nil
 
 base_grid = nil
 
 local gameover_t = 0
 
+local hovered_tile = nil
 local selected_tile = nil
 
 local building_menu = nil
@@ -62,13 +64,15 @@ function state:enter()
 	base_grid:map(function(t)
 		local m = RadialMenu(32, t.x + t.w*0.5, t.y + t.w*0.5)
 		m:addOption(Building.Farm.menuOption, 0)
-		--m:addOption(Building.Factory.menuOption, math.pi*0.5)
+		m:addOption(Building.SocialServices.menuOption, math.pi*0.5)
 		m:addOption(Building.Base.menuOption, math.pi)
-		--m:addOption(Building.University.menuOption, math.pi*1.5)
+		m:addOption(Building.PoliceStation.menuOption, math.pi*1.5)
 		t.menu = m
 	end)
 	selected_tile = nil
 	active_soldier = nil
+	active_citizen = nil
+	hovered_tile = nil
 
 	-- spawn initial units
 	for i = 1, 3 do 
@@ -109,24 +113,41 @@ function state:mousepressed(x, y)
 		if opt then
 			selected_tile.building = Building(selected_tile, opt.type)
 			selected_tile = nil
-		else
+		elseif active_citizen then
 			local t = base_grid:pixelToTile(x, y)
 			if t and not t.building then
 				selected_tile = t
 			else
 				selected_tile = nil
 			end
+		else
+			selected_tile = nil
 		end
 	end	
 end
 
 function state:update(dt)
+	local mx, my = love.mouse.getPosition()
+
 	GameObject.updateAll(dt, { oblique = VIEW_OBLIQUE })
 
+	-- highlight active objects
 	local mx, my = love.mouse.getPosition()
 	active_soldier = GameObject.getNearestOfType("Peep", mx, my, function(peep)
 		return peep:canFireAt(mx, my) end)
+	active_citizen = GameObject.getNearestOfType("Peep", mx, my, function(peep)
+		return peep:isPeepType("Citizen") and (peep.hunger < 1) end)
 
+	if selected_tile and selected_tile.menu:pick(mx, my) then
+		hovered_tile = selected_tile
+	else
+		hovered_tile = base_grid:pixelToTile(mx, my)
+		if hovered_tile ~= selected_tile then
+			selected_tile = nil
+		end
+	end
+
+	-- spawn boats
 	if gameover_t <= 0 then
 		spawn_t = spawn_t + dt
 		if spawn_t > 3 then
@@ -135,6 +156,7 @@ function state:update(dt)
 		end
 	end
 
+	-- close menus
 	base_grid:map(function(t)
 		if t == selected_tile then
 			t.menu:open(3*dt)
@@ -143,6 +165,7 @@ function state:update(dt)
 		end
 	end)
 
+	-- gameover ?
 	if gameover_t > 0 then
 		gameover_t = gameover_t + dt
 		if gameover_t > 3 then
@@ -192,12 +215,20 @@ function state:draw()
 		t.menu:draw()
 	end)
 
-	if active_soldier then
-		local mx, my = love.mouse.getPosition()
-		if mx > LAND_W + 32 then
+
+	local mx, my = love.mouse.getPosition()
+	if mx > LAND_W + 32 then
+		if active_soldier then
 			love.graphics.circle("line", mx, my, 10)
 			love.graphics.circle("line", active_soldier.x, active_soldier.y, 10)
 			love.graphics.line(active_soldier.x, active_soldier.y, mx, my)
+		end
+	else
+		if active_citizen and hovered_tile then
+			local hx, hy = hovered_tile.x + hovered_tile.w*0.5, hovered_tile.y + hovered_tile.h*0.5
+			love.graphics.circle("line", hx, hy, 10)
+			love.graphics.circle("line", active_citizen.x, active_citizen.y, 10)
+			love.graphics.line(active_citizen.x, active_citizen.y, hx, hy)
 		end
 	end
 end

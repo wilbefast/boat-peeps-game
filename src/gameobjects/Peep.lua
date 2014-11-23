@@ -58,7 +58,11 @@ Peep.types = {
     onBecome = function(peep, building)
       peep:setState(Peep.stateBuild, building)
     end
-  }
+  },
+  SocialWorker = {
+  },
+  Policeman = {
+  },
 }
 for name, type in pairs(Peep.types) do
   Peep[name] = type
@@ -101,6 +105,26 @@ function Peep:setState(newState, ...)
     newState.enterFrom(oldState)
   end
   self.state = newState
+end
+
+Peep.stateRiot = function(peep) 
+  return {
+
+    name = "riot",
+
+    update = function(dt)
+    end
+  }
+end
+
+Peep.stateConvert = function(peep) 
+  return {
+
+    name = "convert",
+
+    update = function(dt)
+    end
+  }
 end
 
 Peep.stateFarm = function(peep, farm) 

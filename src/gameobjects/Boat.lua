@@ -90,7 +90,9 @@ function Boat:eventCollision(other, dt)
 		self.hits = self.hits - 1
 		if self.hits <= 0 then
 			self.purge = true
-			Explosion(self.x, self.y)
+			for i = 1, self.size do
+				Explosion(self.x + useful.signedRand(self.w*0.5), self.y)
+			end
 		else
 			self:shoveAwayFrom(other, 700/self.size*dt)
 		end

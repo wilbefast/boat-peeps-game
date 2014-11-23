@@ -59,6 +59,22 @@ Building.types = {
         peep:setState(Peep.stateGetAmmo, base)
       end
     end
+  },
+  PoliceStation = {
+    jobType = "Policeman",
+    updatePeep = function(peep, base, dt)
+      if (peep.hunger < 1) then
+        peep:setState(Peep.stateRiot)
+      end
+    end
+  },
+  SocialServices = {
+    jobType = "SocialWorker",
+    updatePeep = function(peep, base, dt)
+      if (peep.hunger < 1) then
+        peep:setState(Peep.stateConvert)
+      end
+    end
   }
 }
 for name, type in pairs(Building.types) do

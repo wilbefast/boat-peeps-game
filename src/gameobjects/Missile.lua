@@ -28,6 +28,7 @@ local Missile = Class
     self.z = 0
     self.dist = Vector.dist(x, y, tx, ty)
     self.dx, self.dy = (tx - x)/self.dist, (ty - y)/self.dist
+    self.prev_x, self.prev_y = x, y
 
     for i = 1, 3 do
     	local angle = math.random()*math.pi*2
@@ -55,6 +56,15 @@ Game loop
 --]]--
 
 function Missile:update(dt)
+	-- homing
+	local x, y, tx, ty = self.x, self.y, self.target_x, self.target_y
+	local mx, my = love.mouse.getPosition()
+	mx = math.max(LAND_W, mx)
+  tx, ty = useful.lerp(tx, mx, dt), useful.lerp(ty, my, dt)
+  local dist = Vector.dist(x, y, tx, ty)
+  self.dx, self.dy = x - self.prev_x, y - self.prev_y
+  self.target_x, self.target_y = tx, ty
+
 	local prev_t = self.t
 	self.t = self.t + math.min(3*dt, 300*dt/self.dist)
 	self.x = useful.lerp(self.start_x, self.target_x, self.t)
@@ -68,8 +78,8 @@ function Missile:update(dt)
   -- smoke!
   if math.random() > 0.3 then
 		local s = Particle.TrailSmoke(self.x, self.y, 
-			-128*self.dx + useful.signedRand(8), 
-			-128*self.dy + useful.signedRand(8),
+			-64*self.dx + useful.signedRand(8), 
+			-64*self.dy + useful.signedRand(8),
 			-4*(life-10 - 2) + useful.signedRand(10))
 		s.z = self.z
 	end
@@ -77,8 +87,8 @@ function Missile:update(dt)
 	-- and fire!
   if math.random() > 0.1 then
 		local f = Particle.TrailFire(self.x, self.y, 
-			-32*self.dx + useful.signedRand(8), 
-			-32*self.dy + useful.signedRand(8),
+			-16*self.dx + useful.signedRand(8), 
+			-16*self.dy + useful.signedRand(8),
 			-4*(life-10 - 2) + useful.signedRand(10))
 		f.z = self.z
 	end
@@ -86,11 +96,15 @@ function Missile:update(dt)
 	if self.t > 1 then
 		self.purge = true
 	end
+
+	self.prev_x, self.prev_y = x, y
 end
 
 function Missile:draw(x, y)
 
-	local dx, dy = 8*self.dx, 8*self.dy
+
+	local dx, dy = Vector.normalize(self.dx, self.dy)
+	local dx, dy = 8*dx, 8*dy
 
 	local tx, ty = x, y - self.z
 	useful.bindBlack()
