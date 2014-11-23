@@ -109,7 +109,7 @@ end
 
 Peep.stateRiot = function(peep) 
   local other = GameObject.getNearestOfType("Peep", peep.x, peep.y,
-    function(other) other:isPeepType("Beggar") end)
+    function(p) p:isPeepType("Beggar") end)
   return {
 
     name = "riot",

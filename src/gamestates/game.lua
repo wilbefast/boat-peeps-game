@@ -43,8 +43,12 @@ for name, t in pairs(Building.types) do
 		type = t,
 		draw = function(self, x, y)
 			love.graphics.setColor(0, 0, 255)
-				love.graphics.printf(name, x, y, 0, "center")
-				love.graphics.circle("line", x, y, 24)
+				love.graphics.printf(t.name, x, y, 0, "center")
+				if active_option == t.menuOption then
+					love.graphics.circle("line", x, y, 28)
+				else
+					love.graphics.circle("line", x, y, 24)
+				end
 			useful.bindWhite()
 		end
 	}
@@ -142,14 +146,15 @@ function state:update(dt)
 	GameObject.updateAll(dt, { oblique = VIEW_OBLIQUE })
 
 	-- highlight active objects
-	local mx, my = love.mouse.getPosition()
 	active_soldier = GameObject.getNearestOfType("Peep", mx, my, function(peep)
 		return peep:canFireAt(mx, my) end)
 	active_citizen = GameObject.getNearestOfType("Peep", mx, my, function(peep)
 		return peep:isPeepType("Citizen") and (peep.hunger < 1) end)
 	
 	if selected_tile then
+		selected_tile.menu:setPosition(0, 0)
 		active_option = selected_tile.menu:pick(mx, my)
+		log:write("picked")
 	else
 		active_option = nil
 	end
