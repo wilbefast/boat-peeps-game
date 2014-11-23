@@ -56,14 +56,16 @@ Game loop
 --]]--
 
 function Missile:update(dt)
-	-- homing
 	local x, y, tx, ty = self.x, self.y, self.target_x, self.target_y
-	local mx, my = love.mouse.getPosition()
-	mx = math.max(LAND_W, mx)
-  tx, ty = useful.lerp(tx, mx, dt), useful.lerp(ty, my, dt)
-  local dist = Vector.dist(x, y, tx, ty)
-  self.dx, self.dy = x - self.prev_x, y - self.prev_y
-  self.target_x, self.target_y = tx, ty
+	-- homing
+	if self.homing then
+		local mx, my = love.mouse.getPosition()
+		mx = math.max(LAND_W, mx)
+	  tx, ty = useful.lerp(tx, mx, dt), useful.lerp(ty, my, dt)
+	  local dist = Vector.dist(x, y, tx, ty)
+	  self.dx, self.dy = x - self.prev_x, y - self.prev_y
+	  self.target_x, self.target_y = tx, ty
+ 	end
 
 	local prev_t = self.t
 	self.t = self.t + math.min(3*dt, 300*dt/self.dist)

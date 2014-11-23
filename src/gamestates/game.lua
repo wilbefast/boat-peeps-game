@@ -35,6 +35,8 @@ local gameover_t = 0
 local hovered_tile = nil
 local selected_tile = nil
 
+local active_missile = nil
+
 local building_menu = nil
 for name, t in pairs(Building.types) do
 	t.menuOption = {
@@ -73,10 +75,11 @@ function state:enter()
 	active_soldier = nil
 	active_citizen = nil
 	hovered_tile = nil
+	active_missile = nil
 
 	-- spawn initial units
 	for i = 1, 3 do 
-		Peep(LAND_W + useful.signedRand(4), WORLD_H*0.5 + useful.signedRand(4), Peep.Citizen)
+		Peep(LAND_W + useful.signedRand(4), WORLD_H*0.5 + useful.signedRand(4), Peep.Soldier).ammo = 100
 	end
 	for i = 1, 9 do
 		Food(LAND_W + useful.signedRand(4), WORLD_H*0.5 + useful.signedRand(4))
@@ -104,7 +107,8 @@ function state:mousepressed(x, y)
 
 	if x > LAND_W + 32 then
 		if active_soldier then
-			active_soldier:fireAt(x, y)
+			active_missile = active_soldier:fireAt(x, y)
+			active_missile.homing = true
 		end
 		selected_tile = nil
 	else
@@ -126,6 +130,13 @@ function state:mousepressed(x, y)
 	end	
 end
 
+function state:mousereleased()
+	if active_missile then
+		active_missile.homing = false
+		active_missile = nil
+	end
+end
+
 function state:update(dt)
 	local mx, my = love.mouse.getPosition()
 
@@ -144,6 +155,9 @@ function state:update(dt)
 		hovered_tile = base_grid:pixelToTile(mx, my)
 		if hovered_tile ~= selected_tile then
 			selected_tile = nil
+		end
+		if hovered_tile and hovered_tile.building then
+			hovered_tile = nil
 		end
 	end
 
@@ -184,6 +198,16 @@ function state:update(dt)
 		end
 	end
 
+	-- clean
+	if active_soldier and active_soldier.purge then
+		active_soldier = nil
+	end
+	if active_citizen and active_citizen.purge then
+		active_citizen = nil
+	end
+	if active_missile and active_missile.purge then
+		active_missile = nil
+	end
 end
 
 function state:draw()
@@ -218,7 +242,11 @@ function state:draw()
 
 	local mx, my = love.mouse.getPosition()
 	if mx > LAND_W + 32 then
-		if active_soldier then
+		if active_missile then
+			love.graphics.circle("line", mx, my, 10)
+			love.graphics.circle("line", active_missile.x, active_missile.y, 10)
+			love.graphics.line(active_missile.x, active_missile.y, mx, my)
+		elseif active_soldier then
 			love.graphics.circle("line", mx, my, 10)
 			love.graphics.circle("line", active_soldier.x, active_soldier.y, 10)
 			love.graphics.line(active_soldier.x, active_soldier.y, mx, my)
@@ -226,7 +254,7 @@ function state:draw()
 	else
 		if active_citizen and hovered_tile then
 			local hx, hy = hovered_tile.x + hovered_tile.w*0.5, hovered_tile.y + hovered_tile.h*0.5
-			love.graphics.circle("line", hx, hy, 10)
+			love.graphics.rectangle("line", hx - 24, hy - 24, 48, 48)
 			love.graphics.circle("line", active_citizen.x, active_citizen.y, 10)
 			love.graphics.line(active_citizen.x, active_citizen.y, hx, hy)
 		end

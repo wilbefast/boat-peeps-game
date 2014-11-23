@@ -326,8 +326,8 @@ end
 
 function Peep:fireAt(x, y)
   self.ammo = math.max(0, self.ammo - 1)
-  Missile(self.x, self.y, x, y)
   self:shove(self.x - x, self.y - y, 300)
+  return Missile(self.x, self.y, x, y)
 end
 
 --[[------------------------------------------------------------
