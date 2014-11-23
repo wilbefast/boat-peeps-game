@@ -164,6 +164,8 @@ Peep.stateRiot = function(peep)
       end
       if peep:isNear(other) then
         other:shove(1, 0, 50)
+        peep:shoveAwayFrom(other, 20)
+        audio:load_sound("police_attack")
       else
         if peep.x < LAND_W then
           peep:accelerateTowardsObject(other, 200*dt)
@@ -178,10 +180,6 @@ Peep.stateConvert = function(peep)
     function(p) return p:isPeepType("Beggar") and not p.convertor end)
   if other then
     other.convertor = peep
-    if other.brutaliser then
-      other.brutaliser:setState(Peep.stateIdle)
-      other.brutaliser = nil
-    end
     peep.target = other
   end
   return {
@@ -257,6 +255,8 @@ Peep.stateGetFood = function(peep)
       if peep:isNear(food) then
         food.purge = true
         peep.hunger = math.max(0, peep.hunger - 1)
+        audio:play_sound("eat", 0.2)
+        peep:setState(Peep.stateIdle)
         return
       else
         peep:accelerateTowardsObject(food, 200*dt)

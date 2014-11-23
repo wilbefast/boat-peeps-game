@@ -38,6 +38,8 @@ base_grid = nil
 
 n_unmolested = 0
 
+img_bubble = nil
+
 local gameover_t = nil
 local game_t = nil
 
@@ -49,7 +51,7 @@ Gamestate navigation
 
 function state:init()
 	img_coast = love.graphics.newImage("assets/coast.png")
-
+	img_bubble = love.graphics.newImage("assets/popup.png")
 
 	for name, t in pairs(Building.types) do
 		local icon = love.graphics.newImage(t.icon)
@@ -146,19 +148,30 @@ function state:mousepressed(x, y)
 			active_missile.homing = true
 		end
 		selected_tile = nil
+		if selected_tile then
+			audio:play_sound("menu_close")
+		end
 	else
 		if active_option then
 			selected_tile.building = Building(selected_tile, active_option.type)
 			selected_tile = nil
+			audio:play_sound("select")
 		elseif active_citizen then
 			local t = base_grid:pixelToTile(x, y)
 			if t and not t.building then
 				selected_tile = t
+				audio:play_sound("menu_open")
 			else
 				selected_tile = nil
+				if selected_tile then
+					audio:play_sound("menu_close")
+				end
 			end
 		else
 			selected_tile = nil
+			if selected_tile then
+				audio:play_sound("menu_close")
+			end
 		end
 	end	
 end
@@ -193,6 +206,9 @@ function state:update(dt)
 	else
 		hovered_tile = base_grid:pixelToTile(mx, my)
 		if hovered_tile ~= selected_tile then
+			if selected_tile then
+				audio:play_sound("menu_close")
+			end
 			selected_tile = nil
 		end
 		if hovered_tile and hovered_tile.building then
@@ -206,7 +222,7 @@ function state:update(dt)
 	-- spawn boats
 	if gameover_t <= 0 then
 		spawn_t = spawn_t + dt
-		if spawn_t > 15/(game_t*0.05) then
+		if spawn_t > 15/(1 + game_t*0.001) then
 			Boat(WORLD_W + 128, spawn_positions.draw(), math.random(3))
 			spawn_t = 0
 		end

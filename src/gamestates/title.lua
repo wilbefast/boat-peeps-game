@@ -70,7 +70,7 @@ function state:draw()
 		VIEW_W*0.5 - VIEW_W*0.2, VIEW_H*0.2 + offset, VIEW_W*0.4, "center")
 
 	love.graphics.setFont(FONT_MEDIUM)
-	love.graphics.printf("@wilbefast\n#desterbusfr", 
+	love.graphics.printf("@wilbefast\n#desertbusfr", 
 		VIEW_W*0.5 - VIEW_W*0.1, VIEW_H*0.5 + offset, VIEW_W*0.2, "center")
 
 	love.graphics.setFont(FONT_SMALL)
