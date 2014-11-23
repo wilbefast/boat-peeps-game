@@ -45,7 +45,8 @@ Building.types = {
     end,
     draw = function(self)
       fudge.addb("construction", self.x, self.y, 0, 1, 1, 32, 32)
-    end
+    end,
+    icon = "assets/farm_icon.png"
   },
   Farm = {
     jobType = "Farmer",
@@ -56,7 +57,8 @@ Building.types = {
     end,
     draw = function(self)
       fudge.addb("farm", self.x, self.y, 0, 1, 1, 32, 32)
-    end
+    end,
+    icon = "assets/farm_icon.png"
   },
   Base = {
     jobType = "Soldier",
@@ -67,9 +69,10 @@ Building.types = {
     end,
     draw = function(self)
       fudge.addb("base", self.x, self.y, 0, 1, 1, 32, 32)
-    end
+    end,
+    icon = "assets/base_icon.png"
   },
-  PoliceStation = {
+  Prison = {
     jobType = "Policeman",
     updatePeep = function(peep, base, dt)
       if (peep.hunger < 1) and (n_unmolested > 0) then
@@ -78,9 +81,10 @@ Building.types = {
     end,
     draw = function(self)
       fudge.addb("policestation", self.x, self.y, 0, 1, 1, 32, 32)
-    end
+    end,
+    icon = "assets/policestation_icon.png"
   },
-  SocialServices = {
+  Church = {
     jobType = "SocialWorker",
     updatePeep = function(peep, base, dt)
       if (peep.hunger < 1) and (n_unmolested > 0) then
@@ -89,7 +93,8 @@ Building.types = {
     end,
     draw = function(self)
       fudge.addb("church", self.x, self.y, 0, 1, 1, 32, 32)
-    end
+    end,
+    icon = "assets/church_icon.png"
   }
 }
 for name, type in pairs(Building.types) do

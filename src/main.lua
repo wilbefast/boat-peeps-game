@@ -100,6 +100,10 @@ VIEW_SCALE = 1
 
 DEBUG = false
 
+FONT_SMALL = nil
+FONT_MEDIUM = nil
+FONT_BIG = nil
+
 -------------------------------------------------------------------------------
 -- GLOBAL VARIABLES
 -------------------------------------------------------------------------------
@@ -118,7 +122,6 @@ gameover = require("gamestates/gameover")
 -- LOVE CALLBACKS
 -------------------------------------------------------------------------------
 love.load = function()
-
 	VIEW_W = love.graphics.getWidth()
 	VIEW_H = love.graphics.getHeight()
 
@@ -133,6 +136,17 @@ love.load = function()
 
 	gamestate.registerEvents{ 'quit', 'keypressed', 'keyreleased' }
 	gamestate.switch(title)
+
+	FONT_SMALL = love.graphics.newFont("assets/ttf/Romulus_by_pix3m.ttf", 32)
+	FONT_SMALL:setFilter("nearest", "nearest", 1)
+	love.graphics.setFont(FONT_SMALL)
+
+	FONT_MEDIUM = love.graphics.newFont("assets/ttf/Romulus_by_pix3m.ttf", 48)
+	FONT_MEDIUM:setFilter("nearest", "nearest", 1)
+
+	FONT_BIG = love.graphics.newFont("assets/ttf/Romulus_by_pix3m.ttf", 64)
+	FONT_BIG:setFilter("nearest", "nearest", 1)
+
 end
 
 love.draw = function()

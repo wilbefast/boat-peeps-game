@@ -410,7 +410,6 @@ function Peep:draw(x, y)
 
 
   if self.peepType.draw then
-    log:write(self.t)
     self.peepType.draw(self, x, y - 4 + 4*math.sin(20*self.t))
   end
   useful.pushCanvas(SHADOW_CANVAS)

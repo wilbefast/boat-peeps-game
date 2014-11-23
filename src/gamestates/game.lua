@@ -41,23 +41,7 @@ n_unmolested = 0
 local gameover_t = nil
 local game_t = nil
 
-
 local building_menu = nil
-for name, t in pairs(Building.types) do
-	t.menuOption = {
-		type = t,
-		draw = function(self, x, y)
-			love.graphics.setColor(0, 0, 255)
-				love.graphics.printf(t.name, x, y, 0, "center")
-				if active_option == t.menuOption then
-					love.graphics.circle("line", x, y, 28)
-				else
-					love.graphics.circle("line", x, y, 24)
-				end
-			useful.bindWhite()
-		end
-	}
-end
 
 --[[------------------------------------------------------------
 Gamestate navigation
@@ -65,6 +49,45 @@ Gamestate navigation
 
 function state:init()
 	img_coast = love.graphics.newImage("assets/coast.png")
+
+
+	for name, t in pairs(Building.types) do
+		print(name, t.icon)
+		local icon = love.graphics.newImage(t.icon)
+		t.menuOption = {
+			type = t,
+			draw = function(self, x, y)
+				local scale = 1
+				local black = false
+				if active_option == t.menuOption then
+					scale = 2
+					love.graphics.setLineWidth(4)
+					love.graphics.printf(t.name, x - 200, y + 32, 400, "center")
+				else
+					black = true
+				end
+				love.graphics.draw(icon, x, y, 0, scale, scale, 16, 16)
+				if black then
+					useful.bindBlack()
+				end
+				love.graphics.circle("line", x, y, scale*16)
+				useful.bindWhite()
+
+				if DEBUG then
+					love.graphics.setColor(0, 0, 255)
+						love.graphics.printf(t.name, x, y, 0, "center")
+						if active_option == t.menuOption then
+							love.graphics.circle("line", x, y, 28)
+						else
+							love.graphics.circle("line", x, y, 24)
+						end
+					useful.bindWhite()
+				end
+				love.graphics.setLineWidth(1)
+			end
+		}
+	end
+
 end
 
 
@@ -78,9 +101,9 @@ function state:enter()
 	base_grid:map(function(t)
 		local m = RadialMenu(32, t.x + t.w*0.5, t.y + t.w*0.5)
 		m:addOption(Building.Farm.menuOption, 0)
-		m:addOption(Building.SocialServices.menuOption, math.pi*0.5)
+		m:addOption(Building.Church.menuOption, math.pi*0.5)
 		m:addOption(Building.Base.menuOption, math.pi)
-		m:addOption(Building.PoliceStation.menuOption, math.pi*1.5)
+		m:addOption(Building.Prison.menuOption, math.pi*1.5)
 		t.menu = m
 	end)
 	selected_tile = nil
@@ -102,7 +125,8 @@ end
 
 function state:leave()
 	GameObject.purgeAll()
-	--WORLD_CANVAS:clear()
+	SHADOW_CANVAS:clear()
+	WORLD_CANVAS:clear()
 end
 
 --[[------------------------------------------------------------
@@ -161,7 +185,6 @@ function state:update(dt)
 	if selected_tile then
 		selected_tile.menu:setPosition(0, 0)
 		active_option = selected_tile.menu:pick(mx, my)
-		log:write("picked")
 	else
 		active_option = nil
 	end
@@ -184,7 +207,7 @@ function state:update(dt)
 	-- spawn boats
 	if gameover_t <= 0 then
 		spawn_t = spawn_t + dt
-		if spawn_t > 5/(game_t*0.033) then
+		if spawn_t > 15/(game_t*0.05) then
 			Boat(WORLD_W + 128, spawn_positions.draw(), math.random(3))
 			spawn_t = 0
 		end
@@ -209,7 +232,6 @@ function state:update(dt)
 		local citizens = GameObject.countOfTypeSuchThat("Peep", function(peep)
 				return (not peep:isPeepType("Beggar") and (peep.hunger < 1))
 			end)
-		log:write(citizens)
 		if citizens <= 0 then
 			-- fail!
 			if not GameObject.getObjectOfType("Food") then

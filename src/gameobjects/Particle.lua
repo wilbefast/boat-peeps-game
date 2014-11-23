@@ -138,7 +138,6 @@ function TrailSmoke:update(dt)
 	if self.t > 1 then
 		self.purge = true
 	end
-	log:write(self.dx, self.dy)
 	GameObject.update(self, dt)
 	self.z = self.z + self.dz*dt
 end

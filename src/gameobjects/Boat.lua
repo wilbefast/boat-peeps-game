@@ -25,6 +25,9 @@ local Boat = Class
 
   init = function(self, x, y, size)
 
+
+  	size = 1
+
     GameObject.init(self, x, y, 32*size, 16)
     self.size = size
     self.hits = size
@@ -77,7 +80,27 @@ function Boat:update(dt)
 end
 
 function Boat:draw(x, y)
-	self.DEBUG_VIEW:draw(self)
+	if self.size == 1 then
+		fudge.addb("boat_small", x - self.w*0.5, y - self.h)
+	elseif self.size == 2 then
+		-- TODO
+	elseif self.size == 3 then
+		-- TODO
+	end
+
+  useful.pushCanvas(SHADOW_CANVAS)
+    useful.bindBlack()
+      love.graphics.rectangle("fill", 
+      	self.x - self.w*0.5, 
+      	self.y - self.h*0.5 + 4, 
+      	self.w, self.h)
+    useful.bindWhite()
+  useful.popCanvas()
+
+
+	if DEBUG then
+		self.DEBUG_VIEW:draw(self)
+	end
 end
 
 --[[------------------------------------------------------------
