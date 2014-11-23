@@ -108,21 +108,43 @@ function Peep:setState(newState, ...)
 end
 
 Peep.stateRiot = function(peep) 
+  local other = GameObject.getNearestOfType("Peep", peep.x, peep.y,
+    function(other) other:isPeepType("Beggar") end)
   return {
 
     name = "riot",
 
     update = function(dt)
+      if (not other) or (other.purge) then
+        peep:setState(Peep.stateIdle)
+        return
+      end
+      if peep:isNear(other) then
+        other:shove(1, 0, 300)
+      else
+        peep:accelerateTowardsObject(other, 128*dt)
+      end
     end
   }
 end
 
 Peep.stateConvert = function(peep) 
+  local other = GameObject.getNearestOfType("Peep", peep.x, peep.y,
+    function(p) p:isPeepType("Beggar") end)
   return {
 
     name = "convert",
 
     update = function(dt)
+      if (not other) or (other.purge) then
+        peep:setState(Peep.stateIdle)
+        return
+      end
+      if peep:isNear(other) then
+        other.conversion = (other.conversion or 0) + dt
+      else
+        peep:accelerateTowardsObject(other, 128*dt)
+      end
     end
   }
 end

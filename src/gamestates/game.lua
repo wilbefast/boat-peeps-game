@@ -27,15 +27,15 @@ end
 
 local active_soldier = nil
 local active_citizen = nil
+local hovered_tile = nil
+local selected_tile = nil
+local active_missile = nil
+local active_option = nil
 
 base_grid = nil
 
 local gameover_t = 0
 
-local hovered_tile = nil
-local selected_tile = nil
-
-local active_missile = nil
 
 local building_menu = nil
 for name, t in pairs(Building.types) do
@@ -79,7 +79,8 @@ function state:enter()
 
 	-- spawn initial units
 	for i = 1, 3 do 
-		Peep(LAND_W + useful.signedRand(4), WORLD_H*0.5 + useful.signedRand(4), Peep.Soldier).ammo = 100
+		Peep(LAND_W + useful.signedRand(4), WORLD_H*0.5 + useful.signedRand(4), Peep.Citizen)
+		Peep(LAND_W + useful.signedRand(4), WORLD_H*0.5 + useful.signedRand(4), Peep.Beggar)
 	end
 	for i = 1, 9 do
 		Food(LAND_W + useful.signedRand(4), WORLD_H*0.5 + useful.signedRand(4))
@@ -112,10 +113,8 @@ function state:mousepressed(x, y)
 		end
 		selected_tile = nil
 	else
-		local opt = selected_tile and selected_tile.menu:pick(x, y)
-
-		if opt then
-			selected_tile.building = Building(selected_tile, opt.type)
+		if active_option then
+			selected_tile.building = Building(selected_tile, active_option.type)
 			selected_tile = nil
 		elseif active_citizen then
 			local t = base_grid:pixelToTile(x, y)
@@ -148,8 +147,14 @@ function state:update(dt)
 		return peep:canFireAt(mx, my) end)
 	active_citizen = GameObject.getNearestOfType("Peep", mx, my, function(peep)
 		return peep:isPeepType("Citizen") and (peep.hunger < 1) end)
-
-	if selected_tile and selected_tile.menu:pick(mx, my) then
+	
+	if selected_tile then
+		active_option = selected_tile.menu:pick(mx, my)
+	else
+		active_option = nil
+	end
+	
+	if active_option then
 		hovered_tile = selected_tile
 	else
 		hovered_tile = base_grid:pixelToTile(mx, my)
@@ -252,7 +257,7 @@ function state:draw()
 			love.graphics.line(active_soldier.x, active_soldier.y, mx, my)
 		end
 	else
-		if active_citizen and hovered_tile then
+		if active_citizen and hovered_tile and (not selected_tile) then
 			local hx, hy = hovered_tile.x + hovered_tile.w*0.5, hovered_tile.y + hovered_tile.h*0.5
 			love.graphics.rectangle("line", hx - 24, hy - 24, 48, 48)
 			love.graphics.circle("line", active_citizen.x, active_citizen.y, 10)
