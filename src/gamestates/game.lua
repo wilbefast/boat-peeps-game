@@ -233,13 +233,13 @@ end
 
 function state:draw()
 	-- land
-	love.graphics.setColor(250, 130, 30)
+	love.graphics.setColor(200, 100, 10)
 		love.graphics.rectangle("fill", 0, 0, LAND_W, WORLD_H)
 	useful.bindWhite()
 	base_grid:draw()
 
 	-- sea
-	love.graphics.setColor(30, 200, 250)
+	love.graphics.setColor(10, 162, 200)
 		love.graphics.rectangle("fill", LAND_W, 0, WORLD_W - LAND_W, WORLD_H)
 	useful.bindWhite()
 

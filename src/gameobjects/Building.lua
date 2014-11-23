@@ -42,6 +42,9 @@ Building.types = {
       if (peep.hunger < 1) then
         peep:setState(Peep.stateBuild, building)
       end
+    end,
+    draw = function(self)
+      fudge.addb("construction", self.x, self.y, 0, 1, 1, 32, 32)
     end
   },
   Farm = {
@@ -50,6 +53,9 @@ Building.types = {
       if (peep.hunger < 1) and (peep.state.name ~= "farm") then
         peep:setState(Peep.stateFarm, farm)
       end
+    end,
+    draw = function(self)
+      fudge.addb("farm", self.x, self.y, 0, 1, 1, 32, 32)
     end
   },
   Base = {
@@ -58,6 +64,9 @@ Building.types = {
       if (peep.ammo < 1) and (peep.hunger < 1) and (peep.state.name ~= "reloading") then
         peep:setState(Peep.stateGetAmmo, base)
       end
+    end,
+    draw = function(self)
+      fudge.addb("base", self.x, self.y, 0, 1, 1, 32, 32)
     end
   },
   PoliceStation = {
@@ -159,11 +168,16 @@ function Building:update(dt)
 end
 
 function Building:draw(x, y)
-	love.graphics.setColor(0, 0, 255)
-		self.DEBUG_VIEW:draw(self)
-		love.graphics.printf(self.buildingType.name, x, y, 0, "center")
-	useful.bindWhite()
+  if DEBUG then
+  	love.graphics.setColor(0, 0, 255)
+  		self.DEBUG_VIEW:draw(self)
+  		love.graphics.printf(self.buildingType.name, x, y, 0, "center")
+  	useful.bindWhite()
+  end
 
+  if self.buildingType.draw then
+    self.buildingType.draw(self)
+  end
 end
 
 --[[------------------------------------------------------------

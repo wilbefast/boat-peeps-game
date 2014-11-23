@@ -52,9 +52,9 @@ function Fire:update(dt)
 end
 
 function Fire:draw(x, y)
-	love.graphics.setColor(self.red, self.green, self.blue)
-		love.graphics.circle("fill", x, y - self.z, self.r)
-	useful.bindWhite()
+	fudge.setColorb(self.red, self.green, self.blue)
+		fudge.addb("circle", x, y - self.z, 0, self.r/64, self.r/64, 32, 32)
+	fudge.setWhiteb()
 end
 
 Particle.Fire = Fire
@@ -99,11 +99,12 @@ function Smoke:draw(x, y)
 	useful.pushCanvas(SHADOW_CANVAS)
 		useful.bindBlack()
 			useful.oval("fill", x, y, shad_r, shad_r*VIEW_OBLIQUE)
+		useful.bindWhite()
 	useful.popCanvas()
 
-	love.graphics.setColor(self.a, self.a, self.a)
-		love.graphics.circle("fill", x, y - self.z, r)
-	useful.bindWhite()
+	fudge.setColorb(self.a, self.a, self.a)
+		fudge.addb("circle", x, y - self.z, 0, r/64, r/64, 32, 32)
+	fudge.setWhiteb()
 end
 
 Particle.Smoke = Smoke
@@ -149,11 +150,12 @@ function TrailSmoke:draw(x, y)
 	useful.pushCanvas(SHADOW_CANVAS)
 		useful.bindBlack()
 			useful.oval("fill", x, y, shad_r, shad_r*VIEW_OBLIQUE)
+		useful.bindWhite()
 	useful.popCanvas()
 
-	love.graphics.setColor(self.a, self.a, self.a)
-	love.graphics.circle("fill", x, y - self.z, r)
-	useful.bindWhite()
+	fudge.setColorb(self.a, self.a, self.a)
+		fudge.addb("circle", x, y - self.z, 0, r/64, r/64, 32, 32)
+	fudge.setWhiteb()
 end
 
 Particle.TrailSmoke = TrailSmoke
@@ -194,9 +196,9 @@ function TrailFire:update(dt)
 end
 
 function TrailFire:draw(x, y)
-	love.graphics.setColor(self.red, self.green, self.blue)
-		love.graphics.circle("fill", x, y - self.z, self.r)
-	useful.bindWhite()
+	fudge.setColorb(self.red, self.green, self.blue)
+		fudge.addb("circle", x, y - self.z, 0, self.r/64, self.r/64, 32, 32)
+	fudge.setWhiteb()
 end
 
 Particle.TrailFire = TrailFire
