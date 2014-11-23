@@ -23,7 +23,7 @@ local Food = Class
   type = GameObject.newType("Food"),
 
   init = function(self, x, y)
-    GameObject.init(self, x, y, 4)
+    GameObject.init(self, x, y, 6)
   end,
 }
 Food:include(GameObject)
@@ -52,9 +52,12 @@ function Food:update(dt)
 end
 
 function Food:draw(x, y)
-	love.graphics.setColor(255, 0, 255)
-		self.DEBUG_VIEW:draw(self)
-	useful.bindWhite()
+	fudge.addb("pie", x, y, 0, 1, 1, 8, 16)
+  useful.pushCanvas(SHADOW_CANVAS)
+    useful.bindBlack()
+      useful.oval("fill", self.x, self.y, 8, 8*VIEW_OBLIQUE)
+    useful.bindWhite()
+  useful.popCanvas()
 end
 
 --[[------------------------------------------------------------

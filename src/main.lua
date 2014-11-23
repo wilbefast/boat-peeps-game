@@ -78,6 +78,7 @@ WORLD_W = 1280
 WORLD_H = 720
 WORLD_CANVAS = love.graphics.newCanvas(WORLD_W, WORLD_H)
 SHADOW_CANVAS = love.graphics.newCanvas(WORLD_W, WORLD_H)
+UI_CANVAS = love.graphics.newCanvas(WORLD_W, WORLD_H)
 
 LAND_W = WORLD_W*0.2
 
@@ -143,7 +144,7 @@ love.draw = function()
 		love.graphics.scale(VIEW_SCALE, VIEW_SCALE)
 		love.graphics.translate(useful.signedRand(shake), useful.signedRand(shake))
 		love.graphics.draw(WORLD_CANVAS)
-		--love.graphics.draw(SHADOW_CANVAS)
+		useful.recordGIF("x")
 	love.graphics.pop()
 
 	if DEBUG then
@@ -152,6 +153,11 @@ love.draw = function()
 end
 
 love.update = function(dt)
+
+	if love.keyboard.isDown("x") then
+    dt = 1/30
+ 	end
+
   if shake > 0 then
     shake = math.max(0, shake - 10*dt*shake)
   end

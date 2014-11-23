@@ -42,31 +42,49 @@ Peep.types = {
   Citizen = {
     onBecome = function(peep)
       peep:setState(Peep.stateIdle)
+    end,
+    draw = function(peep)
+      fudge.addb("peep_citizen", peep.x, peep.y, 0, 1, 1, 16, 32)
     end
   },
   Farmer = {
     onBecome = function(peep, farm)
       peep:setState(Peep.stateFarm, farm)
+    end,
+    draw = function(peep)
+      fudge.addb("peep_farmer", peep.x, peep.y, 0, 1, 1, 16, 32)
     end
   },
   Soldier = {
     onBecome = function(peep)
       peep:setState(Peep.stateWander)
+    end,
+    draw = function(peep)
+      fudge.addb("peep_soldier", peep.x, peep.y, 0, 1, 1, 16, 32)
     end
   },
   Engineer = {
     onBecome = function(peep, building)
       peep:setState(Peep.stateBuild, building)
+    end,
+    draw = function(peep)
+      fudge.addb("peep_construction", peep.x, peep.y, 0, 1, 1, 16, 32)
     end
   },
   SocialWorker = {
     onBecome = function(peep)
       peep:setState(Peep.stateConvert)
+    end,
+    draw = function(peep)
+      fudge.addb("peep_priest", peep.x, peep.y, 0, 1, 1, 16, 32)
     end
   },
   Policeman = {
     onBecome = function(peep)
       peep:setState(Peep.stateRiot)
+    end,
+    draw = function(peep)
+      fudge.addb("peep_police", peep.x, peep.y, 0, 1, 1, 16, 32)
     end
   },
 }
@@ -380,24 +398,38 @@ function Peep:update(dt)
 end
 
 function Peep:draw(x, y)
-	love.graphics.setColor(0, 0, 0)
-		love.graphics.circle(self:isPeepType("Beggar") and "line" or "fill", self.x, self.y, self.r)
-    if DEBUG then
-      if self.job then
-        love.graphics.line(self.x, self.y, self.job.x, self.job.y)
+
+
+  if self.peepType.draw then
+    self.peepType.draw(self)
+  end
+  useful.pushCanvas(SHADOW_CANVAS)
+    useful.bindBlack()
+      useful.oval("fill", self.x, self.y, 16, 16*VIEW_OBLIQUE)
+    useful.bindWhite()
+  useful.popCanvas()
+
+  if DEBUG then
+  	love.graphics.setColor(0, 0, 0)
+  		love.graphics.circle(self:isPeepType("Beggar") and "line" or "fill", self.x, self.y, self.r)
+      if DEBUG then
+        if self.job then
+          love.graphics.line(self.x, self.y, self.job.x, self.job.y)
+        end
+        love.graphics.printf(self.peepType.name, x, y + 4, 0, "center")
+        love.graphics.printf(self.state.name, x, y - 16, 0, "center")
       end
-      love.graphics.printf(self.peepType.name, x, y + 4, 0, "center")
-      love.graphics.printf(self.state.name, x, y - 16, 0, "center")
-    end
-    if self.convertor then
-      love.graphics.setColor(0, 255, 0)
-      love.graphics.line(self.x, self.y, self.convertor.x, self.convertor.y)
-    end
-    if self.brutaliser then
-      love.graphics.setColor(255, 0, 0)
-      love.graphics.line(self.x, self.y, self.brutaliser.x, self.brutaliser.y)
-    end
-	useful.bindWhite()
+      if self.convertor then
+        love.graphics.setColor(0, 255, 0)
+        love.graphics.line(self.x, self.y, self.convertor.x, self.convertor.y)
+      end
+      if self.brutaliser then
+        love.graphics.setColor(255, 0, 0)
+        love.graphics.line(self.x, self.y, self.brutaliser.x, self.brutaliser.y)
+      end
+  	useful.bindWhite()
+  end
+
 end
 
 --[[------------------------------------------------------------

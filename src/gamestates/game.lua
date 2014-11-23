@@ -18,6 +18,8 @@ local state = gamestate.new()
 Defines
 --]]--
 
+local img_coast = nil
+
 local spawn_t = nil
 
 local spawn_positions = useful.deck()
@@ -62,6 +64,7 @@ Gamestate navigation
 --]]--
 
 function state:init()
+	img_coast = love.graphics.newImage("assets/coast.png")
 end
 
 
@@ -232,16 +235,19 @@ function state:update(dt)
 end
 
 function state:draw()
-	-- land
-	love.graphics.setColor(200, 100, 10)
-		love.graphics.rectangle("fill", 0, 0, LAND_W, WORLD_H)
-	useful.bindWhite()
-	base_grid:draw()
-
 	-- sea
 	love.graphics.setColor(10, 162, 200)
 		love.graphics.rectangle("fill", LAND_W, 0, WORLD_W - LAND_W, WORLD_H)
 	useful.bindWhite()
+
+	-- land
+	love.graphics.setColor(200, 100, 10)
+		love.graphics.rectangle("fill", 0, 0, LAND_W, WORLD_H)
+		love.graphics.draw(img_coast, LAND_W, 0)
+	useful.bindWhite()
+
+
+	--base_grid:draw()
 
 	-- shadows
 	useful.bindWhite(128)
@@ -255,31 +261,63 @@ function state:draw()
 	love.graphics.draw(foregroundb)
 	foregroundb.batch:clear()
 
-	-- interface
-	base_grid:map(function(t)
-		t.menu:draw()
-	end)
-
-
-	local mx, my = love.mouse.getPosition()
-	if mx > LAND_W + 32 then
-		if active_missile then
-			love.graphics.circle("line", mx, my, 10)
-			love.graphics.circle("line", active_missile.x, active_missile.y, 10)
-			love.graphics.line(active_missile.x, active_missile.y, mx, my)
-		elseif active_soldier then
-			love.graphics.circle("line", mx, my, 10)
-			love.graphics.circle("line", active_soldier.x, active_soldier.y, 10)
-			love.graphics.line(active_soldier.x, active_soldier.y, mx, my)
+	-- interface overlay
+	UI_CANVAS:clear()
+	useful.pushCanvas(UI_CANVAS)
+		local mx, my = love.mouse.getPosition()
+		love.graphics.setLineWidth(2)
+		if mx > LAND_W + 32 then
+			if active_missile then
+				love.graphics.setColor(255, 100, 255)
+					love.graphics.circle("fill", mx, my, 10)
+					love.graphics.circle("fill", active_missile.x, active_missile.y, 6)
+					love.graphics.line(active_missile.x, active_missile.y, mx, my)
+					love.graphics.setBlendMode("subtractive")
+						love.graphics.circle("fill", mx, my, 8)
+						love.graphics.circle("fill", active_missile.x, active_missile.y, 4)
+					love.graphics.setBlendMode("alpha")
+					love.graphics.line(mx, my - 4, mx, my - 12)
+					love.graphics.line(mx - 4, my, mx - 12, my)
+					love.graphics.line(mx + 4, my, mx + 12, my)
+					love.graphics.line(mx, my + 4, mx, my + 12)
+				useful.bindWhite()
+			elseif active_soldier then
+				love.graphics.setColor(255, 50, 50)
+					love.graphics.circle("fill", mx, my, 10)
+					love.graphics.circle("fill", active_soldier.x, active_soldier.y, 10)
+					love.graphics.line(active_soldier.x, active_soldier.y, mx, my)
+					love.graphics.setBlendMode("subtractive")
+						love.graphics.circle("fill", mx, my, 8)
+						love.graphics.circle("fill", active_soldier.x, active_soldier.y, 8)
+					love.graphics.setBlendMode("alpha")
+					love.graphics.line(mx, my - 4, mx, my - 12)
+					love.graphics.line(mx - 4, my, mx - 12, my)
+					love.graphics.line(mx + 4, my, mx + 12, my)
+					love.graphics.line(mx, my + 4, mx, my + 12)
+				useful.bindWhite()
+			end
+		else
+			if active_citizen and hovered_tile and (not selected_tile) then
+				love.graphics.setColor(255, 255, 100)
+					local hx, hy = hovered_tile.x + hovered_tile.w*0.5, hovered_tile.y + hovered_tile.h*0.5
+					love.graphics.rectangle("fill", hx - 24, hy - 24, 48, 48)
+					love.graphics.circle("fill", active_citizen.x, active_citizen.y, 10)
+					love.graphics.line(active_citizen.x, active_citizen.y, hx, hy)
+					love.graphics.setBlendMode("subtractive")
+						love.graphics.rectangle("fill", hx - 22, hy - 22, 44, 44)
+						love.graphics.circle("fill", active_citizen.x, active_citizen.y, 8)
+					love.graphics.setBlendMode("alpha")
+				useful.bindWhite()
+			end
 		end
-	else
-		if active_citizen and hovered_tile and (not selected_tile) then
-			local hx, hy = hovered_tile.x + hovered_tile.w*0.5, hovered_tile.y + hovered_tile.h*0.5
-			love.graphics.rectangle("line", hx - 24, hy - 24, 48, 48)
-			love.graphics.circle("line", active_citizen.x, active_citizen.y, 10)
-			love.graphics.line(active_citizen.x, active_citizen.y, hx, hy)
-		end
-	end
+		love.graphics.setLineWidth(1)
+
+		base_grid:map(function(t)
+			t.menu:draw()
+		end)
+
+	useful.popCanvas(UI_CANVAS)
+	love.graphics.draw(UI_CANVAS)
 end
 
 
