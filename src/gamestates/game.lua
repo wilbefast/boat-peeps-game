@@ -52,7 +52,6 @@ function state:init()
 
 
 	for name, t in pairs(Building.types) do
-		print(name, t.icon)
 		local icon = love.graphics.newImage(t.icon)
 		t.menuOption = {
 			type = t,
@@ -342,6 +341,16 @@ function state:draw()
 
 	useful.popCanvas(UI_CANVAS)
 	love.graphics.draw(UI_CANVAS)
+
+
+	if game_t < 5 then
+		local offset = 8*math.sin(2*game_t)
+
+		love.graphics.setFont(FONT_BIG)
+		love.graphics.printf("Protect your pies!", 
+			VIEW_W*0.5 - VIEW_W*0.05, VIEW_H*0.3 + offset, VIEW_W*0.1, "center")
+	end
+
 end
 
 

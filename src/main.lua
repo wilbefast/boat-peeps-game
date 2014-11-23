@@ -147,6 +147,8 @@ love.load = function()
 	FONT_BIG = love.graphics.newFont("assets/ttf/Romulus_by_pix3m.ttf", 64)
 	FONT_BIG:setFilter("nearest", "nearest", 1)
 
+	audio:load_sound("missile", 1, 5)
+	audio:load_sound("explosion", 1, 5)
 end
 
 love.draw = function()

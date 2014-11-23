@@ -65,7 +65,6 @@ function state:draw()
 	useful.bindWhite()
 
 	local offset = 8*math.sin(2*t)
-	local rot = math.pi*math.cos(2*t)
 
 	love.graphics.setFont(FONT_MEDIUM)
 	love.graphics.printf("They took your pie!", 

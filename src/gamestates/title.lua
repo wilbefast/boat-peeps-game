@@ -64,7 +64,6 @@ function state:draw()
 	useful.bindWhite()
 
 	local offset = 8*math.sin(2*t)
-	local rot = math.pi*math.cos(2*t)
 	
 	love.graphics.setFont(FONT_BIG)
 	love.graphics.printf("AUSTRALIAN FOREIGN-POLICY SIMULATOR 2014", 

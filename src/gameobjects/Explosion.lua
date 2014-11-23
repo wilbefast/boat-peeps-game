@@ -38,6 +38,8 @@ local Explosion = Class
     	local speed = 128 + math.random()*64
     	Particle.Fire(self.x, self.y, speed*dx, speed*dy, speed*0.5*dz)
     end
+
+    audio:play_sound("explosion", 0.4)
   end,
 }
 Explosion:include(GameObject)

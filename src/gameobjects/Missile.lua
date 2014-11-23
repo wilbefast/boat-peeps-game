@@ -37,6 +37,7 @@ local Missile = Class
     	Particle.Smoke(self.x, self.y, speed*dx, speed*dy, speed*dz)
     end
 
+    audio:play_sound("missile", 0.2)
   end,
 }
 Missile:include(GameObject)
