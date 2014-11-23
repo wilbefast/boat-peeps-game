@@ -115,11 +115,25 @@ end
 
 Peep.stateRiot = function(peep) 
   local other = GameObject.getNearestOfType("Peep", peep.x, peep.y,
-    function(p) return (p:isPeepType("Beggar") and p.x < LAND_W) end)
+    function(p) return (p:isPeepType("Beggar") 
+      and (p.x < LAND_W)
+      and (not p.brutaliser)
+      and (not p.convertor)) end)
+  if other then
+    other.brutaliser = peep
+    peep.target = other
+  end
 
   return {
 
     name = "riot",
+
+    exitTo = function()
+      if other and other.brutaliser == peep then
+        other.brutaliser = nil
+        peep.target = nil
+      end
+    end,
 
     update = function(dt)
       if (not other) or (other.purge) then
@@ -139,10 +153,25 @@ end
 
 Peep.stateConvert = function(peep) 
   local other = GameObject.getNearestOfType("Peep", peep.x, peep.y,
-    function(p) return p:isPeepType("Beggar") end)
+    function(p) return p:isPeepType("Beggar") and not p.convertor end)
+  if other then
+    other.convertor = peep
+    if other.brutaliser then
+      other.brutaliser:setState(Peep.stateIdle)
+      other.brutaliser = nil
+    end
+    peep.target = other
+  end
   return {
 
     name = "convert",
+
+    exitTo = function()
+      if other and other.convertor == peep then
+        other.convertor = nil
+        peep.target = nil
+      end
+    end,
 
     update = function(dt)
       if (not other) or (other.purge) then
@@ -154,6 +183,9 @@ Peep.stateConvert = function(peep)
         other.conversion = (other.conversion or 0) + dt*0.1
         if other.conversion > 1 then
           other:setPeepType("Citizen")
+          other.brutaliser = nil
+          self:setState(Peep.stateIdle)
+          return
         end
       else
         if peep.x < LAND_W then
@@ -176,7 +208,7 @@ Peep.stateFarm = function(peep, farm)
         return
       end
       if peep:isNear(farm) then
-        t = t + dt*0.1
+        t = t + dt*0.2
         if t > 1 then
           t = 0
           Food(farm.x + useful.signedRand(4), farm.y + useful.signedRand(4))
@@ -249,7 +281,6 @@ Peep.stateReloading = function(peep)
 end
 
 Peep.stateBuild = function(peep, building) 
-  log:write("BUILDING")
   return {
 
     name = "build",
@@ -337,19 +368,35 @@ function Peep:update(dt)
 
   if self.job and self.job.buildingType.updatePeep then
     self.job.buildingType.updatePeep(self, self.job, dt)
-  elseif self.job then
-    log:write("no updatePeep method for", self.job.buildingType.name)
+  end
+
+  -- kludgy clean up
+  if self.brutaliser and self.brutaliser.target ~= self then
+    self.brutaliser = nil
+  end
+  if self.convertor and self.convertor.target ~= self then
+    self.convertor = nil
   end
 end
 
 function Peep:draw(x, y)
 	love.graphics.setColor(0, 0, 0)
-		self.DEBUG_VIEW:draw(self)
-    if self.job then
-      love.graphics.line(self.x, self.y, self.job.x, self.job.y)
+		love.graphics.circle(self:isPeepType("Beggar") and "line" or "fill", self.x, self.y, self.r)
+    if DEBUG then
+      if self.job then
+        love.graphics.line(self.x, self.y, self.job.x, self.job.y)
+      end
+      love.graphics.printf(self.peepType.name, x, y + 4, 0, "center")
+      love.graphics.printf(self.state.name, x, y - 16, 0, "center")
     end
-		love.graphics.printf(self.peepType.name, x, y + 4, 0, "center")
-    love.graphics.printf(self.state.name, x, y - 16, 0, "center")
+    if self.convertor then
+      love.graphics.setColor(0, 255, 0)
+      love.graphics.line(self.x, self.y, self.convertor.x, self.convertor.y)
+    end
+    if self.brutaliser then
+      love.graphics.setColor(255, 0, 0)
+      love.graphics.line(self.x, self.y, self.brutaliser.x, self.brutaliser.y)
+    end
 	useful.bindWhite()
 end
 

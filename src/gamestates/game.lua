@@ -18,7 +18,7 @@ local state = gamestate.new()
 Defines
 --]]--
 
-local spawn_t = 0
+local spawn_t = nil
 
 local spawn_positions = useful.deck()
 for i = 1, 9 do
@@ -34,9 +34,10 @@ local active_option = nil
 
 base_grid = nil
 
-n_beggars = 0
+n_unmolested = 0
 
-local gameover_t = 0
+local gameover_t = nil
+local game_t = nil
 
 
 local building_menu = nil
@@ -66,7 +67,9 @@ end
 
 function state:enter()
 	spawn_t = 0
+	wave = 1
 	gameover_t = 0
+	game_t = 0
 
 	base_grid = CollisionGrid(BaseSlot, TILE_W, TILE_H, N_TILES_ACROSS, N_TILES_DOWN, GRID_X, GRID_Y)
 	base_grid:map(function(t)
@@ -172,10 +175,13 @@ function state:update(dt)
 		end
 	end
 
+	-- count time
+	game_t = game_t + dt
+
 	-- spawn boats
 	if gameover_t <= 0 then
 		spawn_t = spawn_t + dt
-		if spawn_t > 3 then
+		if spawn_t > 5/(game_t*0.033) then
 			Boat(WORLD_W + 128, spawn_positions.draw(), math.random(3))
 			spawn_t = 0
 		end
@@ -221,8 +227,8 @@ function state:update(dt)
 	end
 
 	-- count beggars
-	n_beggars = GameObject.countOfTypeSuchThat("Peep", function(peep)
-				return peep:isPeepType("Beggar") end)
+	n_unmolested = GameObject.countOfTypeSuchThat("Peep", function(peep)
+				return peep:isPeepType("Beggar") and (not peep.brutaliser) and (not peep.convertor) end)
 end
 
 function state:draw()

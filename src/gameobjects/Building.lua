@@ -63,7 +63,7 @@ Building.types = {
   PoliceStation = {
     jobType = "Policeman",
     updatePeep = function(peep, base, dt)
-      if (peep.hunger < 1) and (n_beggars > 0) then
+      if (peep.hunger < 1) and (n_unmolested > 0) then
         peep:setState(Peep.stateRiot)
       end
     end
@@ -71,7 +71,7 @@ Building.types = {
   SocialServices = {
     jobType = "SocialWorker",
     updatePeep = function(peep, base, dt)
-      if (peep.hunger < 1) and (n_beggars > 0) then
+      if (peep.hunger < 1) and (n_unmolested > 0) then
         peep:setState(Peep.stateConvert)
       end
     end
