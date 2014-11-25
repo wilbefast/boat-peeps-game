@@ -63,7 +63,11 @@ Building.types = {
   Base = {
     jobType = "Soldier",
     updatePeep = function(peep, base, dt)
-      if (peep.ammo < 1) and (peep.hunger < 1) and (peep.state.name ~= "reloading") then
+      if (peep.ammo < 1) 
+        and (peep.hunger < 1) 
+        and (peep.state.name ~= "reloading")
+        and (peep.state.name ~= "firing") 
+      then
         peep:setState(Peep.stateGetAmmo, base)
       end
     end,

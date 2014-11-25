@@ -153,7 +153,11 @@ love.load = function()
 	audio:load_sound("menu_open", 1, 1)
 	audio:load_sound("menu_close", 1, 1)
 	audio:load_sound("eat", 0.6, 3)
-	audio:load_sound("police_attack", 0.6, 6)
+	audio:load_sound("police_attack", 1, 6)
+	audio:load_music("music_menu")
+	audio:load_music("music_game")
+	--audio.mute = true
+	audio:play_music("music_menu", 0.25)
 end
 
 love.draw = function()

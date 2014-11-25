@@ -26,6 +26,7 @@ function state:init()
 end
 
 function state:enter()
+	audio:play_music("music_menu", 0.25)
 	t = 0
 end
 

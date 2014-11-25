@@ -39,6 +39,11 @@ base_grid = nil
 n_unmolested = 0
 
 img_bubble = nil
+img_bubble_eat = nil
+img_bubble_convert = nil
+img_bubble_police = nil
+img_bubble_ammo = nil
+img_bubble_build = nil
 
 local gameover_t = nil
 local game_t = nil
@@ -52,6 +57,11 @@ Gamestate navigation
 function state:init()
 	img_coast = love.graphics.newImage("assets/coast.png")
 	img_bubble = love.graphics.newImage("assets/popup.png")
+	img_bubble_eat = love.graphics.newImage("assets/popup_eat.png")
+	img_bubble_convert = love.graphics.newImage("assets/popup_convert.png")
+	img_bubble_police = love.graphics.newImage("assets/popup_police.png")
+	img_bubble_ammo = love.graphics.newImage("assets/popup_ammo.png")
+	img_bubble_build = love.graphics.newImage("assets/popup_build.png")
 
 	for name, t in pairs(Building.types) do
 		local icon = love.graphics.newImage(t.icon)
@@ -93,6 +103,8 @@ end
 
 
 function state:enter()
+	audio:play_music("music_game", 0.25)
+
 	spawn_t = 0
 	wave = 1
 	gameover_t = 0
@@ -272,6 +284,9 @@ function state:update(dt)
 end
 
 function state:draw()
+	-- clear
+	UI_CANVAS:clear()
+
 	-- sea
 	love.graphics.setColor(10, 162, 200)
 		love.graphics.rectangle("fill", LAND_W, 0, WORLD_W - LAND_W, WORLD_H)
@@ -283,8 +298,6 @@ function state:draw()
 		love.graphics.draw(img_coast, LAND_W, 0)
 	useful.bindWhite()
 
-
-	--base_grid:draw()
 
 	-- shadows
 	useful.bindWhite(128)
@@ -299,7 +312,6 @@ function state:draw()
 	foregroundb.batch:clear()
 
 	-- interface overlay
-	UI_CANVAS:clear()
 	useful.pushCanvas(UI_CANVAS)
 		local mx, my = love.mouse.getPosition()
 		love.graphics.setLineWidth(2)
@@ -363,7 +375,7 @@ function state:draw()
 		local offset = 8*math.sin(2*game_t)
 
 		love.graphics.setFont(FONT_BIG)
-		love.graphics.printf("Protect your pies!", 
+		love.graphics.printf("Protect your pie!", 
 			VIEW_W*0.5 - VIEW_W*0.05, VIEW_H*0.3 + offset, VIEW_W*0.1, "center")
 	end
 

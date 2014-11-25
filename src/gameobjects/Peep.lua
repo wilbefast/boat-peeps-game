@@ -171,6 +171,13 @@ Peep.stateRiot = function(peep)
           peep:accelerateTowardsObject(other, 200*dt)
         end
       end
+    end,
+
+    draw = function(x, y)
+      useful.pushCanvas(UI_CANVAS)
+        love.graphics.draw(img_bubble, x, y, 0, 1, 1, 16, 80)
+        love.graphics.draw(img_bubble_police, x, y, 0, 1, 1, 16, 80)
+      useful.popCanvas()
     end
   }
 end
@@ -212,6 +219,13 @@ Peep.stateConvert = function(peep)
           peep:accelerateTowardsObject(other, 200*dt)
         end
       end
+    end,
+
+    draw = function(x, y)
+      useful.pushCanvas(UI_CANVAS)
+        love.graphics.draw(img_bubble, x, y, 0, 1, 1, 16, 80)
+        love.graphics.draw(img_bubble_convert, x, y, 0, 1, 1, 16, 80)
+      useful.popCanvas()
     end
   }
 end
@@ -261,6 +275,13 @@ Peep.stateGetFood = function(peep)
       else
         peep:accelerateTowardsObject(food, 200*dt)
       end
+    end,
+
+    draw = function(x, y)
+      useful.pushCanvas(UI_CANVAS)
+        love.graphics.draw(img_bubble, x, y, 0, 1, 1, 16, 80)
+        love.graphics.draw(img_bubble_eat, x, y, 0, 1, 1, 16, 80)
+      useful.popCanvas()
     end
   }
 end
@@ -281,6 +302,13 @@ Peep.stateGetAmmo = function(peep, armoury)
       else
         peep:accelerateTowardsObject(armoury, 200*dt)
       end
+    end,
+
+    draw = function(x, y)
+      useful.pushCanvas(UI_CANVAS)
+        love.graphics.draw(img_bubble, x, y, 0, 1, 1, 16, 80)
+        love.graphics.draw(img_bubble_ammo, x, y, 0, 1, 1, 16, 80)
+      useful.popCanvas()
     end
   }
 end
@@ -298,6 +326,13 @@ Peep.stateReloading = function(peep)
         peep.ammo = peep.ammo + 1
         peep:setState(Peep.stateWander)
       end
+    end,
+
+    draw = function(x, y)
+      useful.pushCanvas(UI_CANVAS)
+        love.graphics.draw(img_bubble, x, y, 0, 1, 1, 16, 80)
+        love.graphics.draw(img_bubble_ammo, x, y, 0, 1, 1, 16, 80)
+      useful.popCanvas()
     end
   }
 end
@@ -317,6 +352,13 @@ Peep.stateBuild = function(peep, building)
       else
         peep:accelerateTowardsObject(building, 200*dt)
       end
+    end,
+
+    draw = function(x, y)
+      useful.pushCanvas(UI_CANVAS)
+        love.graphics.draw(img_bubble, x, y, 0, 1, 1, 16, 80)
+        love.graphics.draw(img_bubble_build, x, y, 0, 1, 1, 16, 80)
+      useful.popCanvas()
     end
   }
 end
@@ -358,6 +400,25 @@ Peep.stateIdle = function(peep)
       t = t + dt
       if t > 3 then
         peep:setState(peep.stateWander)
+      end
+    end
+  }
+end
+
+Peep.stateFiring = function(peep)
+  local t = nil
+  return {
+
+    name = "firing",
+
+    enterFrom = function(prev)
+      t = 0
+    end,
+
+    update = function(dt)
+      t = t + dt
+      if t > 1 then
+        peep:setState(peep.stateIdle)
       end
     end
   }
@@ -418,6 +479,10 @@ function Peep:draw(x, y)
     useful.bindWhite()
   useful.popCanvas()
 
+  if self.state.draw then
+    self.state.draw(x, y - 8 + 2*math.sin(20*self.t))
+  end
+
   if DEBUG then
   	love.graphics.setColor(0, 0, 0)
   		love.graphics.circle(self:isPeepType("Beggar") and "line" or "fill", self.x, self.y, self.r)
@@ -452,6 +517,7 @@ end
 function Peep:fireAt(x, y)
   self.ammo = math.max(0, self.ammo - 1)
   self:shove(self.x - x, self.y - y, 300)
+  self:setState(Peep.stateFiring)
   return Missile(self.x, self.y, x, y)
 end
 
