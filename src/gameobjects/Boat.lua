@@ -26,7 +26,7 @@ local Boat = Class
   init = function(self, x, y, size)
 
 
-  	size = 1
+  	size = math.random(3)
 
     GameObject.init(self, x, y, 32*size, 16)
     self.size = size
@@ -83,9 +83,9 @@ function Boat:draw(x, y)
 	if self.size == 1 then
 		fudge.addb("boat_small", x - self.w*0.5, y - self.h)
 	elseif self.size == 2 then
-		-- TODO
+		fudge.addb("boat_medium", x - self.w*0.5, y - self.h)
 	elseif self.size == 3 then
-		-- TODO
+		fudge.addb("boat_large", x - self.w*0.5, y - self.h)
 	end
 
   useful.pushCanvas(SHADOW_CANVAS)

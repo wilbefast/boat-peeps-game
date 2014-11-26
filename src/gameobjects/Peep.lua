@@ -29,6 +29,9 @@ local Peep = Class
     self.ammo = 0
     self.hunger = math.random()*0.2
     self.t = math.random()
+    self.derp_timer = 0
+    self.has_said_derp = true
+    self.conversion = 0
   end,
 }
 Peep:include(GameObject)
@@ -41,6 +44,12 @@ Peep.types = {
   Beggar = {
     draw = function(peep, x, y)
       fudge.addb("peep_refugee", x, y, 0, 1, 1, 16, 32)
+    end,
+    update = function(peep, dt)
+      peep.conversion = peep.conversion + 0.02*dt
+      if peep.conversion > 1 then
+        peep:setPeepType("Citizen")
+      end
     end
   },
   Citizen = {
@@ -121,10 +130,14 @@ States
 --]]--
 
 function Peep:setState(newState, ...)
-  if self.state.name == newState then
+  newState = newState(self, ...)
+  if self.state.name == newState.name then
     return
   end
-  newState = newState(self, ...)
+  if not self.has_said_derp then
+    audio:play_sound("derp", 0.3)
+  end
+  self.has_said_derp = true
   local oldState = self.state
   if oldState.exitTo then
     oldState.exitTo(newState)
@@ -140,7 +153,8 @@ Peep.stateRiot = function(peep)
     function(p) return (p:isPeepType("Beggar") 
       and (p.x < LAND_W)
       and (not p.brutaliser)
-      and (not p.convertor)) end)
+      and (not p.convertor)
+      and (p.state.name ~= "in_prison")) end)
   if other then
     other.brutaliser = peep
     peep.target = other
@@ -158,14 +172,16 @@ Peep.stateRiot = function(peep)
     end,
 
     update = function(dt)
-      if (not other) or (other.purge) then
+      if (not other) or (other.purge) or (not other:isPeepType("Beggar")) 
+        or (other.state.name == "in_prison")
+      then
         peep:setState(Peep.stateIdle)
         return
       end
+      log:write(other.state.name)
       if peep:isNear(other) then
-        other:shove(1, 0, 50)
-        peep:shoveAwayFrom(other, 20)
-        audio:load_sound("police_attack")
+        other:setState(Peep.stateInPrison)
+        peep:setState(Peep.stateIdle)
       else
         if peep.x < LAND_W then
           peep:accelerateTowardsObject(other, 200*dt)
@@ -178,6 +194,30 @@ Peep.stateRiot = function(peep)
         love.graphics.draw(img_bubble, x, y, 0, 1, 1, 16, 80)
         love.graphics.draw(img_bubble_police, x, y, 0, 1, 1, 16, 80)
       useful.popCanvas()
+    end
+  }
+end
+
+Peep.stateInPrison = function(peep)
+  local t = nil
+  return {
+
+    name = "in_prison",
+
+    enterFrom = function(prev)
+      t = 0
+    end,
+
+    update = function(dt)
+      t = t + dt
+      peep.t = 0
+      if t > 10 then
+        peep:setState(peep.stateIdle)
+      end
+    end,
+
+    draw = function(x, y)
+      fudge.addb("peep_prison", peep.x, peep.y, 0, 1, 1, 16, 32)
     end
   }
 end
@@ -208,9 +248,8 @@ Peep.stateConvert = function(peep)
       if peep:isNear(other) then
         other:setState(Peep.stateIdle)
         other.conversion = (other.conversion or 0) + dt*0.1
-        if other.conversion > 1 then
-          other:setPeepType("Citizen")
-          other.brutaliser = nil
+        if not other:isPeepType("Beggar") then
+          other.convertor = nil
           peep:setState(Peep.stateIdle)
           return
         end
@@ -242,10 +281,15 @@ Peep.stateFarm = function(peep, farm)
         return
       end
       if peep:isNear(farm) then
-        t = t + dt*0.2
+        t = t + dt*0.15
         if t > 1 then
           t = 0
-          Food(farm.x + useful.signedRand(4), farm.y + useful.signedRand(4))
+          local n_farms = GameObject.countOfTypeSuchThat("Building", 
+            function(b) return b:isBuildingType("Farm") end)
+          local n_pies = GameObject.countOfTypeSuchThat("Food") 
+          if n_pies <= 9*n_farms then
+            Food(farm.x + useful.signedRand(4), farm.y + useful.signedRand(4))
+          end
         end
       else
         peep:accelerateTowardsObject(farm, 200*dt)
@@ -397,6 +441,7 @@ Peep.stateIdle = function(peep)
     end,
 
     update = function(dt)
+      peep.t = 0
       t = t + dt
       if t > 3 then
         peep:setState(peep.stateWander)
@@ -437,18 +482,27 @@ function Peep:update(dt)
   end
 
   self.t = self.t + dt
-  if self.state.name == "idle" then
-    self.t = 0
+
+  self.derp_timer = self.derp_timer + dt
+  if self.derp_timer > 2.5 then
+    self.has_said_derp = false
+    self.derp_timer = 0
   end
 
   GameObject.update(self, dt)
 
   self.state.update(dt)
 
+  if self.peepType.update then
+    self.peepType.update(self, dt)
+  end
+
   self.hunger = self.hunger + dt/30
   if self.hunger > 1 then
     if self.hunger < 2 then
-      self:setState(Peep.stateGetFood)
+      if self.state.name ~= "in_prison" then
+        self:setState(Peep.stateGetFood)
+      end
     else
       self.purge = true
     end

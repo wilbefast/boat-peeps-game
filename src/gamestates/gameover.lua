@@ -26,7 +26,13 @@ function state:init()
 end
 
 function state:enter()
-	audio:play_music("music_menu", 0.25)
+	if not playing_music_menu then
+		music_menu:play()
+		music_menu:seek(music_game:tell())
+		music_game:pause()
+		playing_music_menu = true
+	end
+	
 	t = 0
 end
 

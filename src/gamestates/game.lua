@@ -50,11 +50,14 @@ local game_t = nil
 
 local building_menu = nil
 
+time_left = nil
+
 --[[------------------------------------------------------------
 Gamestate navigation
 --]]--
 
 function state:init()
+
 	img_coast = love.graphics.newImage("assets/coast.png")
 	img_bubble = love.graphics.newImage("assets/popup.png")
 	img_bubble_eat = love.graphics.newImage("assets/popup_eat.png")
@@ -103,12 +106,19 @@ end
 
 
 function state:enter()
-	audio:play_music("music_game", 0.25)
+	if playing_music_menu then
+		music_game:play()
+		music_game:seek(music_menu:tell())
+		music_menu:pause()
+		playing_music_menu = false
+	end
+
 
 	spawn_t = 0
 	wave = 1
 	gameover_t = 0
 	game_t = 0
+	time_left = 305
 
 	base_grid = CollisionGrid(BaseSlot, TILE_W, TILE_H, N_TILES_ACROSS, N_TILES_DOWN, GRID_X, GRID_Y)
 	base_grid:map(function(t)
@@ -196,6 +206,8 @@ function state:mousereleased()
 end
 
 function state:update(dt)
+	local n_boats = GameObject.countOfTypeSuchThat("Boat")
+
 	local mx, my = love.mouse.getPosition()
 
 	GameObject.updateAll(dt, { oblique = VIEW_OBLIQUE })
@@ -230,13 +242,66 @@ function state:update(dt)
 
 	-- count time
 	game_t = game_t + dt
+	time_left = math.max(0, time_left - dt)
+	if (time_left <= 0) then -- and (n_boats <= 0) then
+
+		local n_prisons = GameObject.countOfTypeSuchThat("Building", function(b) 
+			return b:isBuildingType("Prison")
+		end)
+		local n_churches = GameObject.countOfTypeSuchThat("Building", function(b) 
+			return b:isBuildingType("Church")
+		end)
+		local n_bases = GameObject.countOfTypeSuchThat("Building", function(b) 
+			return b:isBuildingType("Base")
+		end)
+		local n_farms = GameObject.countOfTypeSuchThat("Building", function(b) 
+			return b:isBuildingType("Farm")
+		end)
+		local n_total = n_prisons + n_farms + n_bases + n_churches
+		log:write(n_prisons, "prisons")
+		log:write(n_churches, "churches")
+		log:write(n_bases, "bases")
+		log:write(n_farms, "farms")
+		log:write(n_total, "total")
+
+		n_prisons = n_prisons/(n_total - n_farms)
+		n_bases = n_bases/(n_total - n_farms)
+		n_farms = n_farms/n_total
+		n_churches = n_churches/(n_total - n_farms)
+
+		if n_prisons > 0.5 then
+			ending_title = "A Police State"
+			ending_description = "'Being poor's against the laws!'"
+		elseif n_bases > 0.7 then
+			ending_title = "A Military Despotism"
+			ending_description = "'Might is right!'"
+		elseif n_farms > 0.9 then
+			ending_title = "An Agrarian Utopia"
+			ending_description = "'Imagine all the people...'"
+		elseif n_churches > 0.5 then
+			ending_title = "A Totalitarian Theocracy"
+			ending_description = "'Strength Through Unity, Unity Through Faith'"
+		else
+			ending_title = "A Pie Refuge"
+			ending_description = "'Only pastries are welcome here...'"
+		end
+
+		gamestate.switch(win)
+		return
+	end
 
 	-- spawn boats
-	if gameover_t <= 0 then
+	if (gameover_t <= 0) and (time_left > 0) then
 		spawn_t = spawn_t + dt
-		if spawn_t > 15/(1 + game_t*0.001) then
-			Boat(WORLD_W + 128, spawn_positions.draw(), math.random(3))
-			spawn_t = 0
+		if spawn_t > math.max(0.5, (5*time_left/300)*(0.5 + 0.5*(1 + math.cos(game_t / 10)))) then
+			local max_boats = (game_t/300)*20
+			if n_boats <= max_boats then
+				Boat(WORLD_W + 128, spawn_positions.draw(), math.random(3))
+				spawn_t = 0
+			else
+				spawn_t = -3
+			end
+			
 		end
 	end
 
@@ -285,6 +350,8 @@ end
 
 function state:draw()
 	-- clear
+	local mx, my = love.mouse.getPosition()
+	local cursor_drawn = false
 	UI_CANVAS:clear()
 
 	-- sea
@@ -313,10 +380,9 @@ function state:draw()
 
 	-- interface overlay
 	useful.pushCanvas(UI_CANVAS)
-		local mx, my = love.mouse.getPosition()
+		
 		love.graphics.setLineWidth(2)
 		if mx > LAND_W + 32 then
-
 			if active_missile then
 				love.graphics.setColor(255, 100, 255)
 					love.graphics.circle("fill", mx, my, 10)
@@ -330,6 +396,7 @@ function state:draw()
 					love.graphics.line(mx - 4, my, mx - 12, my)
 					love.graphics.line(mx + 4, my, mx + 12, my)
 					love.graphics.line(mx, my + 4, mx, my + 12)
+					cursor_drawn = true
 				useful.bindWhite()
 
 			elseif active_soldier then
@@ -345,6 +412,7 @@ function state:draw()
 					love.graphics.line(mx - 4, my, mx - 12, my)
 					love.graphics.line(mx + 4, my, mx + 12, my)
 					love.graphics.line(mx, my + 4, mx, my + 12)
+					cursor_drawn = true
 				useful.bindWhite()
 			end
 		else
@@ -358,6 +426,7 @@ function state:draw()
 						love.graphics.rectangle("fill", hx - 22, hy - 22, 44, 44)
 						love.graphics.rectangle("fill", active_citizen.x - 14, active_citizen.y - 38, 28, 46)
 					love.graphics.setBlendMode("alpha")
+					cursor_drawn = true
 				useful.bindWhite()
 			end
 		end
@@ -367,16 +436,32 @@ function state:draw()
 			t.menu:draw()
 		end)
 
+		if not cursor_drawn then
+			love.graphics.setLineWidth(2)
+				love.graphics.line(mx, my - 8, mx, my + 8)
+				love.graphics.line(mx - 8, my, mx + 8, my)
+			love.graphics.setLineWidth(1)
+		end
+
 	useful.popCanvas(UI_CANVAS)
 	love.graphics.draw(UI_CANVAS)
 
-
+	local offset = 8*math.sin(2*game_t)
 	if game_t < 5 then
-		local offset = 8*math.sin(2*game_t)
+		
 
 		love.graphics.setFont(FONT_BIG)
 		love.graphics.printf("Protect your pie!", 
 			VIEW_W*0.5 - VIEW_W*0.05, VIEW_H*0.3 + offset, VIEW_W*0.1, "center")
+	else
+		love.graphics.setFont(FONT_MEDIUM)
+
+		local minutes_left = math.floor(time_left/60)
+		local seconds_left = math.floor(time_left - 60*minutes_left)
+		local format = string.format("%02d : %02d", minutes_left, seconds_left)
+
+		love.graphics.printf(format, 
+			VIEW_W*0.5 - VIEW_W*0.05, VIEW_H*0.05 + offset*0.5, VIEW_W*0.1, "center")
 	end
 
 end

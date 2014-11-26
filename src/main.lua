@@ -104,6 +104,10 @@ FONT_SMALL = nil
 FONT_MEDIUM = nil
 FONT_BIG = nil
 
+music_menu = nil
+music_game = nil
+playing_music_menu = nil
+
 -------------------------------------------------------------------------------
 -- GLOBAL VARIABLES
 -------------------------------------------------------------------------------
@@ -117,6 +121,7 @@ shake = 0
 game = require("gamestates/game")
 title = require("gamestates/title")
 gameover = require("gamestates/gameover")
+win = require("gamestates/win")
 
 -------------------------------------------------------------------------------
 -- LOVE CALLBACKS
@@ -133,9 +138,6 @@ love.load = function()
 
   fudge.set({ monkey = true })
   foregroundb = fudge.new("assets/foreground", { npot = false })
-
-	gamestate.registerEvents{ 'quit', 'keypressed', 'keyreleased' }
-	gamestate.switch(title)
 
 	FONT_SMALL = love.graphics.newFont("assets/ttf/Romulus_by_pix3m.ttf", 32)
 	FONT_SMALL:setFilter("nearest", "nearest", 1)
@@ -154,10 +156,20 @@ love.load = function()
 	audio:load_sound("menu_close", 1, 1)
 	audio:load_sound("eat", 0.6, 3)
 	audio:load_sound("police_attack", 1, 6)
-	audio:load_music("music_menu")
-	audio:load_music("music_game")
-	--audio.mute = true
-	audio:play_music("music_menu", 0.25)
+	audio:load_sounds("derp", 4, 0.5, 2)
+	
+	music_menu = love.audio.newSource("assets/audio/music_menu.ogg")
+	music_game = love.audio.newSource("assets/audio/music_game.ogg")
+	music_menu:setVolume(0.25)
+	music_game:setVolume(0.25)
+	music_menu:setLooping(true)
+	music_game:setLooping(true)
+	music_menu:play()
+
+	love.mouse.setVisible(false)
+
+	gamestate.registerEvents{ 'quit', 'keypressed', 'keyreleased' }
+	gamestate.switch(title)
 end
 
 love.draw = function()
@@ -199,6 +211,6 @@ end
 
 love.keypressed = function(key)
 	if key == "o" then
-		DEBUG = (not DEBUG)
+		--DEBUG = (not DEBUG)
 	end
 end

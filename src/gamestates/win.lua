@@ -17,6 +17,9 @@ local state = gamestate.new()
 local img_coast = nil
 local t = nil
 
+ending_title = nil
+ending_description = nil
+
 --[[------------------------------------------------------------
 Gamestate navigation
 --]]--
@@ -26,14 +29,14 @@ function state:init()
 end
 
 function state:enter()
-	t = 0
-
 	if not playing_music_menu then
 		music_menu:play()
 		music_menu:seek(music_game:tell())
 		music_game:pause()
 		playing_music_menu = true
 	end
+	
+	t = 0
 end
 
 function state:leave()
@@ -46,12 +49,12 @@ Callbacks
 
 function state:keypressed(key, uni)
   if key=="escape" then
-    love.event.push("quit")
+    gamestate.switch(title)
   end
 end
 
 function state:mousepressed(x, y, button)
-  gamestate.switch(game)
+  gamestate.switch(title)
 end
 
 function state:update(dt)
@@ -59,6 +62,7 @@ function state:update(dt)
 end
 
 function state:draw()
+
 	-- sea
 	love.graphics.setColor(10, 162, 200)
 		love.graphics.rectangle("fill", LAND_W, 0, WORLD_W - LAND_W, WORLD_H)
@@ -71,14 +75,22 @@ function state:draw()
 	useful.bindWhite()
 
 	local offset = 8*math.sin(2*t)
-	
+
 	love.graphics.setFont(FONT_BIG)
-	love.graphics.printf("AUSTRALIAN FOREIGN-POLICY SIMULATOR 2014", 
+	love.graphics.printf("CONGRATULATIONS!", 
 		VIEW_W*0.5 - VIEW_W*0.2, VIEW_H*0.1 + offset, VIEW_W*0.4, "center")
 
 	love.graphics.setFont(FONT_MEDIUM)
-	love.graphics.printf("Code/Art:\n@wilbefast\n\nMusic:\nFrédéric Sommer\n\n#desertbusfr", 
-		VIEW_W*0.5 - VIEW_W*0.3, VIEW_H*0.4 + offset, VIEW_W*0.6, "center")
+	love.graphics.printf("You created", 
+		VIEW_W*0.5 - VIEW_W*0.15, VIEW_H*0.2 + offset, VIEW_W*0.3, "center")
+
+	love.graphics.setFont(FONT_BIG)
+	love.graphics.printf(ending_title, 
+		VIEW_W*0.5 - VIEW_W*0.2, VIEW_H*0.4 + offset, VIEW_W*0.4, "center")
+
+	love.graphics.setFont(FONT_MEDIUM)
+	love.graphics.printf(ending_description, 
+		VIEW_W*0.5 - VIEW_W*0.3, VIEW_H*0.6 + offset, VIEW_W*0.6, "center")
 
 	love.graphics.setFont(FONT_SMALL)
 end
