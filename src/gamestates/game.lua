@@ -446,13 +446,14 @@ function state:draw()
 	useful.popCanvas(UI_CANVAS)
 	love.graphics.draw(UI_CANVAS)
 
+
 	local offset = 8*math.sin(2*game_t)
 	if game_t < 5 then
 		
 
 		love.graphics.setFont(FONT_BIG)
 		love.graphics.printf("Protect your pie!", 
-			VIEW_W*0.5 - VIEW_W*0.05, VIEW_H*0.3 + offset, VIEW_W*0.1, "center")
+			(VIEW_W*0.5 - VIEW_W*0.05)/VIEW_SCALE, (VIEW_H*0.3 + offset)/VIEW_SCALE, VIEW_W*0.1/VIEW_SCALE, "center")
 	else
 		love.graphics.setFont(FONT_MEDIUM)
 
@@ -461,8 +462,11 @@ function state:draw()
 		local format = string.format("%02d : %02d", minutes_left, seconds_left)
 
 		love.graphics.printf(format, 
-			VIEW_W*0.5 - VIEW_W*0.05, VIEW_H*0.05 + offset*0.5, VIEW_W*0.1, "center")
+			(VIEW_W*0.5 - VIEW_W*0.05)/VIEW_SCALE, (VIEW_H*0.05 + offset*0.5)/VIEW_SCALE, VIEW_W*0.1/VIEW_SCALE, "center")
 	end
+
+
+  
 
 end
 

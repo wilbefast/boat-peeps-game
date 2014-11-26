@@ -78,19 +78,19 @@ function state:draw()
 
 	love.graphics.setFont(FONT_BIG)
 	love.graphics.printf("CONGRATULATIONS!", 
-		VIEW_W*0.5 - VIEW_W*0.2, VIEW_H*0.1 + offset, VIEW_W*0.4, "center")
+		(VIEW_W*0.5 - VIEW_W*0.2)/VIEW_SCALE, (VIEW_H*0.1 + offset)/VIEW_SCALE, (VIEW_W*0.4)/VIEW_SCALE, "center")
 
 	love.graphics.setFont(FONT_MEDIUM)
 	love.graphics.printf("You created", 
-		VIEW_W*0.5 - VIEW_W*0.15, VIEW_H*0.2 + offset, VIEW_W*0.3, "center")
+		(VIEW_W*0.5 - VIEW_W*0.15)/VIEW_SCALE, (VIEW_H*0.2 + offset)/VIEW_SCALE, (VIEW_W*0.3)/VIEW_SCALE, "center")
 
 	love.graphics.setFont(FONT_BIG)
 	love.graphics.printf(ending_title, 
-		VIEW_W*0.5 - VIEW_W*0.2, VIEW_H*0.4 + offset, VIEW_W*0.4, "center")
+		(VIEW_W*0.5 - VIEW_W*0.2)/VIEW_SCALE, (VIEW_H*0.4 + offset)/VIEW_SCALE, (VIEW_W*0.4)/VIEW_SCALE, "center")
 
 	love.graphics.setFont(FONT_MEDIUM)
 	love.graphics.printf(ending_description, 
-		VIEW_W*0.5 - VIEW_W*0.3, VIEW_H*0.6 + offset, VIEW_W*0.6, "center")
+		(VIEW_W*0.5 - VIEW_W*0.3)/VIEW_SCALE, (VIEW_H*0.6 + offset)/VIEW_SCALE, (VIEW_W*0.6)/VIEW_SCALE, "center")
 
 	love.graphics.setFont(FONT_SMALL)
 end

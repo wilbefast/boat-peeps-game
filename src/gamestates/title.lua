@@ -74,11 +74,11 @@ function state:draw()
 	
 	love.graphics.setFont(FONT_BIG)
 	love.graphics.printf("AUSTRALIAN FOREIGN-POLICY SIMULATOR 2014", 
-		VIEW_W*0.5 - VIEW_W*0.2, VIEW_H*0.1 + offset, VIEW_W*0.4, "center")
+		(VIEW_W*0.5 - VIEW_W*0.2)/VIEW_SCALE, (VIEW_H*0.1 + offset)/VIEW_SCALE, VIEW_W*0.4/VIEW_SCALE, "center")
 
 	love.graphics.setFont(FONT_MEDIUM)
 	love.graphics.printf("Code/Art:\n@wilbefast\n\nMusic:\nFrédéric Sommer\n\n#desertbusfr", 
-		VIEW_W*0.5 - VIEW_W*0.3, VIEW_H*0.4 + offset, VIEW_W*0.6, "center")
+		(VIEW_W*0.5 - VIEW_W*0.3)/VIEW_SCALE, (VIEW_H*0.4 + offset)/VIEW_SCALE, VIEW_W*0.6/VIEW_SCALE, "center")
 
 	love.graphics.setFont(FONT_SMALL)
 end
