@@ -77,7 +77,7 @@ function state:draw()
 		(VIEW_W*0.5 - VIEW_W*0.2)/VIEW_SCALE, (VIEW_H*0.1 + offset)/VIEW_SCALE, VIEW_W*0.4/VIEW_SCALE, "center")
 
 	love.graphics.setFont(FONT_MEDIUM)
-	love.graphics.printf("Code/Art:\n@wilbefast\n\nMusic:\nFrédéric Sommer\n\n#desertbusfr", 
+	love.graphics.printf("Code / Art:\n@wilbefast\n\nMusic / Voice acting:\nGeorge Abitbol\n\n#desertbusfr", 
 		(VIEW_W*0.5 - VIEW_W*0.3)/VIEW_SCALE, (VIEW_H*0.4 + offset)/VIEW_SCALE, VIEW_W*0.6/VIEW_SCALE, "center")
 
 	love.graphics.setFont(FONT_SMALL)

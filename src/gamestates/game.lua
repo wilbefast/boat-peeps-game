@@ -272,7 +272,7 @@ function state:update(dt)
 		if n_prisons > 0.5 then
 			ending_title = "A Police State"
 			ending_description = "'Being poor's against the laws!'"
-		elseif n_bases > 0.7 then
+		elseif n_bases > 0.5 then
 			ending_title = "A Military Despotism"
 			ending_description = "'Might is right!'"
 		elseif n_farms > 0.9 then
@@ -345,7 +345,7 @@ function state:update(dt)
 
 	-- count beggars
 	n_unmolested = GameObject.countOfTypeSuchThat("Peep", function(peep)
-				return peep:isPeepType("Beggar") and (not peep.brutaliser) and (not peep.convertor) end)
+				return peep:isPeepType("Beggar") and (not peep.brutaliser) and (not peep.convertor) and (peep.state.name ~= "in_prison") end)
 end
 
 function state:draw()

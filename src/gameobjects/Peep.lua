@@ -206,13 +206,17 @@ Peep.stateInPrison = function(peep)
 
     enterFrom = function(prev)
       t = 0
+      if peep.brutaliser then
+        peep.brutaliser.target = nil
+        peep.brutaliser = nil
+      end
     end,
 
     update = function(dt)
       t = t + dt
       peep.t = 0
-      if t > 10 then
-        peep:setState(peep.stateIdle)
+      if t > 5 then
+        peep.purge = true
       end
     end,
 
@@ -513,10 +517,13 @@ function Peep:update(dt)
   end
 
   -- kludgy clean up
-  if self.brutaliser and self.brutaliser.target ~= self then
+  if self.target and ((self.target.purge) or (self.target.brutaliser ~= self and self.target.convertor ~= self)) then
+    self.target = nil
+  end
+  if self.brutaliser and (self.brutaliser.purge or (self.brutaliser.target ~= self)) then
     self.brutaliser = nil
   end
-  if self.convertor and self.convertor.target ~= self then
+  if self.convertor and (self.convertor.purge or (self.convertor.target ~= self)) then
     self.convertor = nil
   end
 end
