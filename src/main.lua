@@ -51,9 +51,15 @@ end
 
 local __old_love_mouse_getPosition = love.mouse.getPosition
 
+local __convert_mouse_position = function(x, y)
+	x = (x - (VIEW_W - WORLD_W*VIEW_SCALE)*0.5)/VIEW_SCALE
+	y = (y - (VIEW_H - WORLD_H*VIEW_SCALE)*0.5)/VIEW_SCALE
+	return x, y
+end
+
 love.mouse.getPosition = function()
 	local x, y = __old_love_mouse_getPosition()
-	return x/VIEW_SCALE, y/VIEW_SCALE
+	return __convert_mouse_position(x, y)
 end
 
 -------------------------------------------------------------------------------
@@ -201,11 +207,13 @@ love.update = function(dt)
 end
 
 love.mousepressed = function(x, y, button)
-	gamestate.mousepressed(x/VIEW_SCALE, y/VIEW_SCALE, button)
+	x, y = __convert_mouse_position(x, y)
+	gamestate.mousepressed(x, y, button)
 end
 
 love.mousereleased = function(x, y, button)
-	gamestate.mousereleased(x/VIEW_SCALE, y/VIEW_SCALE, button)
+	x, y = __convert_mouse_position(x, y)
+	gamestate.mousereleased(x, y, button)
 end
 
 love.keypressed = function(key)
