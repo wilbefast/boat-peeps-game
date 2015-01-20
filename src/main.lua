@@ -166,7 +166,7 @@ love.load = function()
 	music_game:setLooping(true)
 	music_menu:play()
 
-	love.mouse.setVisible(false)
+	love.mouse.setVisible(true)
 
 	gamestate.registerEvents{ 'quit', 'keypressed', 'keyreleased' }
 	gamestate.switch(title)

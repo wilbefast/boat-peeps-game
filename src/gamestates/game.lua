@@ -71,19 +71,23 @@ function state:init()
 		t.menuOption = {
 			type = t,
 			draw = function(self, x, y)
-				local scale = 1
+				local scale = 4
 				local black = false
 				if active_option == t.menuOption then
-					scale = 2
+					scale = 8
 					love.graphics.setLineWidth(4)
-					love.graphics.printf(t.name, x - 200, y + 32, 400, "center")
+					love.graphics.printf(t.name, x - 200, y + 128, 400, "center")
 				else
 					black = true
 				end
+				love.graphics.setColor(200, 100, 10)
+				love.graphics.circle("fill", x, y, scale*16)	
+				useful.bindWhite()
 				love.graphics.draw(icon, x, y, 0, scale, scale, 16, 16)
 				if black then
 					useful.bindBlack()
 				end
+				love.graphics.setLineWidth(6)
 				love.graphics.circle("line", x, y, scale*16)
 				useful.bindWhite()
 
@@ -122,7 +126,7 @@ function state:enter()
 
 	base_grid = CollisionGrid(BaseSlot, TILE_W, TILE_H, N_TILES_ACROSS, N_TILES_DOWN, GRID_X, GRID_Y)
 	base_grid:map(function(t)
-		local m = RadialMenu(32, t.x + t.w*0.5, t.y + t.w*0.5)
+		local m = RadialMenu(128, t.x + t.w*0.5, t.y + t.w*0.5)
 		m:addOption(Building.Farm.menuOption, 0)
 		m:addOption(Building.Church.menuOption, math.pi*0.5)
 		m:addOption(Building.Base.menuOption, math.pi)
@@ -166,22 +170,18 @@ function state:mousepressed(x, y)
 
 	if x > LAND_W + 32 then
 		if active_soldier then
-			active_missile = active_soldier:fireAt(x, y)
-			active_missile.homing = true
+			active_soldier:fireAt(x, y)
 		end
 		selected_tile = nil
 		if selected_tile then
 			audio:play_sound("menu_close")
 		end
 	else
-		if active_option then
-			selected_tile.building = Building(selected_tile, active_option.type)
-			selected_tile = nil
-			audio:play_sound("select")
-		elseif active_citizen then
+		if active_citizen then
 			local t = base_grid:pixelToTile(x, y)
 			if t and not t.building then
 				selected_tile = t
+				game_t = math.max(5, game_t) -- skip past the "protect your pie" message
 				audio:play_sound("menu_open")
 			else
 				selected_tile = nil
@@ -199,9 +199,10 @@ function state:mousepressed(x, y)
 end
 
 function state:mousereleased()
-	if active_missile then
-		active_missile.homing = false
-		active_missile = nil
+	if active_option then
+		selected_tile.building = Building(selected_tile, active_option.type)
+		selected_tile = nil
+		audio:play_sound("select")
 	end
 end
 
@@ -380,68 +381,10 @@ function state:draw()
 
 	-- interface overlay
 	useful.pushCanvas(UI_CANVAS)
-		
-		love.graphics.setLineWidth(2)
-		if mx > LAND_W + 32 then
-			if active_missile then
-				love.graphics.setColor(255, 100, 255)
-					love.graphics.circle("fill", mx, my, 10)
-					love.graphics.circle("fill", active_missile.x, active_missile.y, 6)
-					love.graphics.line(active_missile.x, active_missile.y, mx, my)
-					love.graphics.setBlendMode("subtractive")
-						love.graphics.circle("fill", mx, my, 8)
-						love.graphics.circle("fill", active_missile.x, active_missile.y, 4)
-					love.graphics.setBlendMode("alpha")
-					love.graphics.line(mx, my - 4, mx, my - 12)
-					love.graphics.line(mx - 4, my, mx - 12, my)
-					love.graphics.line(mx + 4, my, mx + 12, my)
-					love.graphics.line(mx, my + 4, mx, my + 12)
-					cursor_drawn = true
-				useful.bindWhite()
-
-			elseif active_soldier then
-				love.graphics.setColor(255, 50, 50)
-					love.graphics.circle("fill", mx, my, 10)
-					love.graphics.rectangle("fill", active_soldier.x - 16, active_soldier.y - 40, 32, 50)
-					love.graphics.line(active_soldier.x, active_soldier.y, mx, my)
-					love.graphics.setBlendMode("subtractive")
-						love.graphics.circle("fill", mx, my, 8)
-						love.graphics.rectangle("fill", active_soldier.x - 14, active_soldier.y - 38, 28, 46)
-					love.graphics.setBlendMode("alpha")
-					love.graphics.line(mx, my - 4, mx, my - 12)
-					love.graphics.line(mx - 4, my, mx - 12, my)
-					love.graphics.line(mx + 4, my, mx + 12, my)
-					love.graphics.line(mx, my + 4, mx, my + 12)
-					cursor_drawn = true
-				useful.bindWhite()
-			end
-		else
-			if active_citizen and hovered_tile and (not selected_tile) then
-				love.graphics.setColor(255, 255, 50)
-					local hx, hy = hovered_tile.x + hovered_tile.w*0.5, hovered_tile.y + hovered_tile.h*0.5
-					love.graphics.rectangle("fill", hx - 24, hy - 24, 48, 48)
-					love.graphics.rectangle("fill", active_citizen.x - 16, active_citizen.y - 40, 32, 50)
-					love.graphics.line(active_citizen.x, active_citizen.y, hx, hy)
-					love.graphics.setBlendMode("subtractive")
-						love.graphics.rectangle("fill", hx - 22, hy - 22, 44, 44)
-						love.graphics.rectangle("fill", active_citizen.x - 14, active_citizen.y - 38, 28, 46)
-					love.graphics.setBlendMode("alpha")
-					cursor_drawn = true
-				useful.bindWhite()
-			end
-		end
-		love.graphics.setLineWidth(1)
 
 		base_grid:map(function(t)
-			t.menu:draw()
+			t.menu:draw(WORLD_W*0.5, WORLD_H*0.5)
 		end)
-
-		if not cursor_drawn then
-			love.graphics.setLineWidth(2)
-				love.graphics.line(mx, my - 8, mx, my + 8)
-				love.graphics.line(mx - 8, my, mx + 8, my)
-			love.graphics.setLineWidth(1)
-		end
 
 	useful.popCanvas(UI_CANVAS)
 	love.graphics.draw(UI_CANVAS)
