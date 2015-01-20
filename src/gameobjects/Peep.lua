@@ -191,8 +191,8 @@ Peep.stateRiot = function(peep)
 
     draw = function(x, y)
       useful.pushCanvas(UI_CANVAS)
-        love.graphics.draw(img_bubble, x, y, 0, 1, 1, 16, 80)
-        love.graphics.draw(img_bubble_police, x, y, 0, 1, 1, 16, 80)
+        userinterfaceb:addb(img_bubble, x, y, 0, 1, 1, 16, 80)
+        userinterfaceb:addb(img_bubble_police, x, y, 0, 1, 1, 16, 80)
       useful.popCanvas()
     end
   }
@@ -266,8 +266,8 @@ Peep.stateConvert = function(peep)
 
     draw = function(x, y)
       useful.pushCanvas(UI_CANVAS)
-        love.graphics.draw(img_bubble, x, y, 0, 1, 1, 16, 80)
-        love.graphics.draw(img_bubble_convert, x, y, 0, 1, 1, 16, 80)
+        userinterfaceb:addb(img_bubble, x, y, 0, 1, 1, 16, 80)
+        userinterfaceb:addb(img_bubble_convert, x, y, 0, 1, 1, 16, 80)
       useful.popCanvas()
     end
   }
@@ -327,8 +327,8 @@ Peep.stateGetFood = function(peep)
 
     draw = function(x, y)
       useful.pushCanvas(UI_CANVAS)
-        love.graphics.draw(img_bubble, x, y, 0, 1, 1, 16, 80)
-        love.graphics.draw(img_bubble_eat, x, y, 0, 1, 1, 16, 80)
+        userinterfaceb:addb(img_bubble, x, y, 0, 1, 1, 16, 80)
+        userinterfaceb:addb(img_bubble_eat, x, y, 0, 1, 1, 16, 80)
       useful.popCanvas()
     end
   }
@@ -354,8 +354,8 @@ Peep.stateGetAmmo = function(peep, armoury)
 
     draw = function(x, y)
       useful.pushCanvas(UI_CANVAS)
-        love.graphics.draw(img_bubble, x, y, 0, 1, 1, 16, 80)
-        love.graphics.draw(img_bubble_ammo, x, y, 0, 1, 1, 16, 80)
+        userinterfaceb:addb(img_bubble, x, y, 0, 1, 1, 16, 80)
+        userinterfaceb:addb(img_bubble_ammo, x, y, 0, 1, 1, 16, 80)
       useful.popCanvas()
     end
   }
@@ -378,8 +378,8 @@ Peep.stateReloading = function(peep)
 
     draw = function(x, y)
       useful.pushCanvas(UI_CANVAS)
-        love.graphics.draw(img_bubble, x, y, 0, 1, 1, 16, 80)
-        love.graphics.draw(img_bubble_ammo, x, y, 0, 1, 1, 16, 80)
+        userinterfaceb:addb(img_bubble, x, y, 0, 1, 1, 16, 80)
+        userinterfaceb:addb(img_bubble_ammo, x, y, 0, 1, 1, 16, 80)
       useful.popCanvas()
     end
   }
@@ -404,8 +404,8 @@ Peep.stateBuild = function(peep, building)
 
     draw = function(x, y)
       useful.pushCanvas(UI_CANVAS)
-        love.graphics.draw(img_bubble, x, y, 0, 1, 1, 16, 80)
-        love.graphics.draw(img_bubble_build, x, y, 0, 1, 1, 16, 80)
+        userinterfaceb:addb(img_bubble, x, y, 0, 1, 1, 16, 80)
+        userinterfaceb:addb(img_bubble_build, x, y, 0, 1, 1, 16, 80)
       useful.popCanvas()
     end
   }

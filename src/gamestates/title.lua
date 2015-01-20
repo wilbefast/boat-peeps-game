@@ -37,7 +37,6 @@ function state:enter()
 end
 
 function state:leave()
-	WORLD_CANVAS:clear()
 end
 
 --[[------------------------------------------------------------

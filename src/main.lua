@@ -76,9 +76,7 @@ Particle = require("gameobjects/Particle")
 
 WORLD_W = 1280
 WORLD_H = 720
-WORLD_CANVAS = love.graphics.newCanvas(WORLD_W, WORLD_H)
 SHADOW_CANVAS = love.graphics.newCanvas(WORLD_W, WORLD_H)
-UI_CANVAS = love.graphics.newCanvas(WORLD_W, WORLD_H)
 
 LAND_W = WORLD_W*0.2
 
@@ -138,6 +136,7 @@ love.load = function()
 
   fudge.set({ monkey = true })
   foregroundb = fudge.new("assets/foreground", { npot = false })
+  userinterfaceb = fudge.new("assets/ui", { npot = false })
 
 	FONT_SMALL = love.graphics.newFont("assets/ttf/Romulus_by_pix3m.ttf", 32)
 	FONT_SMALL:setFilter("nearest", "nearest", 1)
@@ -173,14 +172,14 @@ love.load = function()
 end
 
 love.draw = function()
-	useful.pushCanvas(WORLD_CANVAS)
-		gamestate.draw()
-	useful.popCanvas()
+
 
 	love.graphics.push()
+		love.graphics.translate(
+			(VIEW_W - WORLD_W*VIEW_SCALE)*0.5 + useful.signedRand(shake), 
+			(VIEW_H - WORLD_H*VIEW_SCALE)*0.5 + useful.signedRand(shake))
 		love.graphics.scale(VIEW_SCALE, VIEW_SCALE)
-		love.graphics.translate(useful.signedRand(shake), useful.signedRand(shake))
-		love.graphics.draw(WORLD_CANVAS)
+		gamestate.draw()
 		useful.recordGIF("x")
 	love.graphics.pop()
 

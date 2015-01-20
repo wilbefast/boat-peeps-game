@@ -59,15 +59,17 @@ Gamestate navigation
 function state:init()
 
 	img_coast = love.graphics.newImage("assets/coast.png")
-	img_bubble = love.graphics.newImage("assets/popup.png")
-	img_bubble_eat = love.graphics.newImage("assets/popup_eat.png")
-	img_bubble_convert = love.graphics.newImage("assets/popup_convert.png")
-	img_bubble_police = love.graphics.newImage("assets/popup_police.png")
-	img_bubble_ammo = love.graphics.newImage("assets/popup_ammo.png")
-	img_bubble_build = love.graphics.newImage("assets/popup_build.png")
+	img_bubble = userinterfaceb:getPiece("popup")
+	img_bubble_eat = userinterfaceb:getPiece("popup_eat")
+	img_bubble_convert = userinterfaceb:getPiece("popup_convert")
+	img_bubble_police = userinterfaceb:getPiece("popup_police")
+	img_bubble_ammo = userinterfaceb:getPiece("popup_ammo")
+	img_bubble_build = userinterfaceb:getPiece("popup_build")
 
+	local img_icon_back = userinterfaceb:getPiece("icon_back")
+	local img_icon_outline = userinterfaceb:getPiece("icon_outline")
 	for name, t in pairs(Building.types) do
-		local icon = love.graphics.newImage(t.icon)
+		local icon = userinterfaceb:getPiece(t.icon)
 		t.menuOption = {
 			type = t,
 			draw = function(self, x, y)
@@ -75,21 +77,20 @@ function state:init()
 				local black = false
 				if active_option == t.menuOption then
 					scale = 8
-					love.graphics.setLineWidth(4)
-					love.graphics.printf(t.name, x - 200, y + 128, 400, "center")
+					love.graphics.setLineWidth(8)
+					love.graphics.printf(t.name, x - 200, y + 140, 400, "center")
 				else
 					black = true
 				end
-				love.graphics.setColor(200, 100, 10)
-				love.graphics.circle("fill", x, y, scale*16)	
-				useful.bindWhite()
-				love.graphics.draw(icon, x, y, 0, scale, scale, 16, 16)
+				userinterfaceb:setColorb(200, 100, 10)
+				userinterfaceb:addb(img_icon_back, x, y, 0, scale, scale, 14, 14)
+				userinterfaceb:setWhiteb()
+				userinterfaceb:addb(icon, x, y, 0, scale, scale, 16, 16)
 				if black then
-					useful.bindBlack()
+					userinterfaceb:setBlackb()
 				end
-				love.graphics.setLineWidth(6)
-				love.graphics.circle("line", x, y, scale*16)
-				useful.bindWhite()
+				userinterfaceb:addb(img_icon_outline, x, y, 0, scale, scale, 18, 18)
+				userinterfaceb:setWhiteb()
 
 				if DEBUG then
 					love.graphics.setColor(0, 0, 255)
@@ -153,7 +154,6 @@ end
 function state:leave()
 	GameObject.purgeAll()
 	SHADOW_CANVAS:clear()
-	WORLD_CANVAS:clear()
 end
 
 --[[------------------------------------------------------------
@@ -183,16 +183,6 @@ function state:mousepressed(x, y)
 				selected_tile = t
 				game_t = math.max(5, game_t) -- skip past the "protect your pie" message
 				audio:play_sound("menu_open")
-			else
-				selected_tile = nil
-				if selected_tile then
-					audio:play_sound("menu_close")
-				end
-			end
-		else
-			selected_tile = nil
-			if selected_tile then
-				audio:play_sound("menu_close")
 			end
 		end
 	end	
@@ -203,6 +193,11 @@ function state:mousereleased()
 		selected_tile.building = Building(selected_tile, active_option.type)
 		selected_tile = nil
 		audio:play_sound("select")
+	else
+		selected_tile = nil
+		if selected_tile then
+			audio:play_sound("menu_close")
+		end
 	end
 end
 
@@ -230,12 +225,6 @@ function state:update(dt)
 		hovered_tile = selected_tile
 	else
 		hovered_tile = base_grid:pixelToTile(mx, my)
-		if hovered_tile ~= selected_tile then
-			if selected_tile then
-				audio:play_sound("menu_close")
-			end
-			selected_tile = nil
-		end
 		if hovered_tile and hovered_tile.building then
 			hovered_tile = nil
 		end
@@ -353,7 +342,6 @@ function state:draw()
 	-- clear
 	local mx, my = love.mouse.getPosition()
 	local cursor_drawn = false
-	UI_CANVAS:clear()
 
 	-- sea
 	love.graphics.setColor(10, 162, 200)
@@ -365,7 +353,6 @@ function state:draw()
 		love.graphics.rectangle("fill", 0, 0, LAND_W, WORLD_H)
 		love.graphics.draw(img_coast, LAND_W, 0)
 	useful.bindWhite()
-
 
 	-- shadows
 	useful.bindWhite(128)
@@ -380,14 +367,11 @@ function state:draw()
 	foregroundb.batch:clear()
 
 	-- interface overlay
-	useful.pushCanvas(UI_CANVAS)
-
-		base_grid:map(function(t)
-			t.menu:draw(WORLD_W*0.5, WORLD_H*0.5)
-		end)
-
-	useful.popCanvas(UI_CANVAS)
-	love.graphics.draw(UI_CANVAS)
+	base_grid:map(function(t)
+		t.menu:draw(WORLD_W*0.5, WORLD_H*0.5)
+	end)
+	love.graphics.draw(userinterfaceb)
+	userinterfaceb.batch:clear()
 
 
 	local offset = 8*math.sin(2*game_t)
