@@ -355,6 +355,14 @@ function state:draw()
 	useful.bindWhite()
 
 	-- shadows
+	useful.bindBlack()
+		useful.pushCanvas(SHADOW_CANVAS)
+			GameObject.mapToAll(function(obj)
+				if obj.draw_shadow then
+					obj:draw_shadow(obj.x, obj.y)
+				end
+			end)
+		useful.popCanvas()
 	useful.bindWhite(128)
 		love.graphics.draw(SHADOW_CANVAS, 0, 0)
 		SHADOW_CANVAS:clear()

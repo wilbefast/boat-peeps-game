@@ -182,6 +182,10 @@ function Building:update(dt)
   end
 end
 
+function Building:draw_shadow(x, y)
+  love.graphics.rectangle("fill", self.x - self.r*1.5, self.y - self.r*1.5 + 4, self.r*3, self.r*3)
+end
+
 function Building:draw(x, y)
   if DEBUG then
   	love.graphics.setColor(0, 0, 255)
@@ -193,11 +197,6 @@ function Building:draw(x, y)
   if self.buildingType.draw then
     self.buildingType.draw(self)
   end
-  useful.pushCanvas(SHADOW_CANVAS)
-    useful.bindBlack()
-      love.graphics.rectangle("fill", self.x - self.r*1.5, self.y - self.r*1.5 + 4, self.r*3, self.r*3)
-    useful.bindWhite()
-  useful.popCanvas()
 end
 
 --[[------------------------------------------------------------

@@ -51,13 +51,12 @@ function Food:update(dt)
 	GameObject.update(self, dt)
 end
 
+function Food:draw_shadow(x, y)
+  useful.oval("fill", self.x, self.y, 8, 8*VIEW_OBLIQUE)
+end
+
 function Food:draw(x, y)
 	fudge.addb("pie", x, y, 0, 1, 1, 8, 16)
-  useful.pushCanvas(SHADOW_CANVAS)
-    useful.bindBlack()
-      useful.oval("fill", self.x, self.y, 8, 8*VIEW_OBLIQUE)
-    useful.bindWhite()
-  useful.popCanvas()
 end
 
 --[[------------------------------------------------------------

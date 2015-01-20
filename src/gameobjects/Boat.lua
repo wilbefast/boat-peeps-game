@@ -79,6 +79,13 @@ function Boat:update(dt)
 
 end
 
+function Boat:draw_shadow(x, y)
+  love.graphics.rectangle("fill", 
+  	self.x - self.w*0.5, 
+  	self.y - self.h*0.5 + 4, 
+  	self.w, self.h)
+end
+
 function Boat:draw(x, y)
 	if self.size == 1 then
 		fudge.addb("boat_small", x - self.w*0.5, y - self.h)
@@ -87,16 +94,6 @@ function Boat:draw(x, y)
 	elseif self.size == 3 then
 		fudge.addb("boat_large", x - self.w*0.5, y - self.h)
 	end
-
-  useful.pushCanvas(SHADOW_CANVAS)
-    useful.bindBlack()
-      love.graphics.rectangle("fill", 
-      	self.x - self.w*0.5, 
-      	self.y - self.h*0.5 + 4, 
-      	self.w, self.h)
-    useful.bindWhite()
-  useful.popCanvas()
-
 
 	if DEBUG then
 		self.DEBUG_VIEW:draw(self)

@@ -92,16 +92,13 @@ function Smoke:update(dt)
 	self.z = self.z + self.dz*dt
 end
 
+function Smoke:draw_shadow(x, y)
+  local shad_r = self.r*math.min(1, 32*self.z)
+	useful.oval("fill", x, y, shad_r, shad_r*VIEW_OBLIQUE)
+end
+
 function Smoke:draw(x, y)
 	local r = self.r
-	local shad_r = math.min(r, 32*r/self.z)
-
-	useful.pushCanvas(SHADOW_CANVAS)
-		useful.bindBlack()
-			useful.oval("fill", x, y, shad_r, shad_r*VIEW_OBLIQUE)
-		useful.bindWhite()
-	useful.popCanvas()
-
 	fudge.setColorb(self.a, self.a, self.a)
 		fudge.addb("circle", x, y - self.z, 0, r/64, r/64, 32, 32)
 	fudge.setWhiteb()
@@ -142,16 +139,13 @@ function TrailSmoke:update(dt)
 	self.z = self.z + self.dz*dt
 end
 
+function TrailSmoke:draw_shadow(x, y)
+	local shad_r = self.r*math.min(1, 32/self.z)
+	useful.oval("fill", x, y, shad_r, shad_r*VIEW_OBLIQUE)
+end
+
 function TrailSmoke:draw(x, y)
 	local r = self.r
-	local shad_r = math.min(r, 32*r/self.z)
-
-	useful.pushCanvas(SHADOW_CANVAS)
-		useful.bindBlack()
-			useful.oval("fill", x, y, shad_r, shad_r*VIEW_OBLIQUE)
-		useful.bindWhite()
-	useful.popCanvas()
-
 	fudge.setColorb(self.a, self.a, self.a)
 		fudge.addb("circle", x, y - self.z, 0, r/64, r/64, 32, 32)
 	fudge.setWhiteb()

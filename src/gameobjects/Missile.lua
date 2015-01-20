@@ -103,9 +103,11 @@ function Missile:update(dt)
 	self.prev_x, self.prev_y = x, y
 end
 
+function Missile:draw_shadow(x, y)
+	useful.oval("fill", self.x, self.y, 2, 2*VIEW_OBLIQUE)
+end
+
 function Missile:draw(x, y)
-
-
 	local dx, dy = Vector.normalize(self.dx, self.dy)
 	local dx, dy = 8*dx, 8*dy
 
@@ -115,13 +117,7 @@ function Missile:draw(x, y)
 		tx + dx, ty + dy, 
 		tx + dy*0.2, ty - dx*0.2, 
 		tx - dy*0.2, ty + dx*0.2)
-
-
-	useful.pushCanvas(SHADOW_CANVAS)
-		useful.bindBlack()
-			useful.oval("fill", self.x, self.y, 2, 2*VIEW_OBLIQUE)
-		useful.bindWhite()
-	useful.popCanvas()
+	useful.bindWhite()
 end
 
 --[[------------------------------------------------------------

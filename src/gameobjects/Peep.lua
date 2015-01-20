@@ -528,17 +528,16 @@ function Peep:update(dt)
   end
 end
 
-function Peep:draw(x, y)
+function Peep:draw_shadow(x, y)
+  useful.oval("fill", self.x, self.y, 16, 16*VIEW_OBLIQUE)
+end
 
+function Peep:draw(x, y)
 
   if self.peepType.draw then
     self.peepType.draw(self, x, y - 4 + 4*math.sin(20*self.t))
   end
-  useful.pushCanvas(SHADOW_CANVAS)
-    useful.bindBlack()
-      useful.oval("fill", self.x, self.y, 16, 16*VIEW_OBLIQUE)
-    useful.bindWhite()
-  useful.popCanvas()
+      
 
   if self.state.draw then
     self.state.draw(x, y - 8 + 2*math.sin(20*self.t))
